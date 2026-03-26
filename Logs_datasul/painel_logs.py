@@ -23,7 +23,7 @@ import datetime
 import re
 from streamlit_autorefresh import st_autorefresh
 
-DIRETORIO_LOGS = r"\\192.168.0.247\Logs_Datasul\Producao"
+DIRETORIO_LOGS = r"\\server\Logs_Datasul\Producao"
 
 st.set_page_config(page_title="Monitor de Logs Datasul", layout="wide", page_icon="📊")
 st_autorefresh(interval=60000, limit=None, key="monitor_logs_refresh")
@@ -73,7 +73,7 @@ def obter_metricas():
         
     return tamanho_total_bytes, disco, tempo_mais_antigo, quantidade_arquivos, tamanho_por_servico
 
-st.title("📊 Monitor de Retenção de Logs - TOTVS Datasul")
+st.title(" Monitor de Retenção de Logs - TOTVS Datasul")
 st.markdown("---")
 
 with st.spinner('Analisando o servidor de rede...'):
