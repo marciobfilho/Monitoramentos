@@ -1,0 +1,43 @@
+
+==================================================
+📊 RELATÓRIO DE COLETA DE LOGS
+==================================================
+Início da execução:   24/03/2026 07:49:11
+Término da execução:  24/03/2026 07:52:55
+Tempo total:          0:03:43.149810
+
+Arquivos Históricos baixados novos:  5
+Snapshots (Ativos) atualizados:      21
+--------------------------------------------------
+Total de arquivos processados:       26
+==================================================
+
+
+==================================================
+📊 RELATÓRIO DE COLETA DE LOGS
+==================================================
+Início da execução:   25/03/2026 10:44:22
+Término da execução:  25/03/2026 12:07:46
+Tempo total:          1:23:23.964043
+
+Arquivos Históricos baixados novos:  250
+Snapshots (Ativos) atualizados:      19
+--------------------------------------------------
+Total de arquivos processados:       269
+==================================================
+
+
+==================================================
+📊 RELATÓRIO DE COLETA DE LOGS
+==================================================
+Início da execução:   25/03/2026 13:10:46
+Término da execução:  25/03/2026 13:25:00
+Tempo total:          0:14:13.243160
+
+Arquivos Históricos baixados novos:  25
+Snapshots (Ativos) atualizados:      21
+Snapshots antigos removidos:         18
+--------------------------------------------------
+Total de arquivos baixados:          46
+==================================================
+
