@@ -47,7 +47,7 @@ def obter_conteudo_pagina(url):
             else: arquivos.append(href)
         return diretorios, arquivos
     except Exception as e:
-        tqdm.write(f"❌ Erro ao acessar {url}: {e}")
+        tqdm.write(f" Erro ao acessar {url}: {e}")
         return [], []
 
 def extrair_data(nome_arquivo):
@@ -79,7 +79,7 @@ def main():
     
     if not os.path.exists(DIRETORIO_BASE_LOCAL): os.makedirs(DIRETORIO_BASE_LOCAL)
 
-    print(f"\n🚀 Iniciando Coleta [{hora_inicio_str}]...")
+    print(f"\n Iniciando Coleta [{hora_inicio_str}]...")
     servicos, _ = obter_conteudo_pagina(MAIN_URL)
     
     # BARRA DE PROGRESSO GERAL (Serviços)
