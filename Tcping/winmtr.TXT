@@ -1,0 +1,36 @@
+|------------------------------------------------------------------------------------------|
+|                                      WinMTR statistics                                   |
+|                       Host              -   %  | Sent | Recv | Best | Avrg | Wrst | Last |
+|------------------------------------------------|------|------|------|------|------|------|
+|                           192.168.0.254 -    0 | 16283 | 16283 |    0 |    0 |  136 |    1 |
+|                         CTA-EDGE-TQR_C- -    1 | 16277 | 16276 |    0 |    0 |  136 |    3 |
+|                              10.10.0.37 -    0 | 16283 | 16283 |    1 |    2 |  137 |    2 |
+|                           192.168.192.1 -    0 | 16284 | 16284 |    2 |    4 |   78 |    4 |
+|                            172.20.0.197 -    0 | 16282 | 16282 |    2 |    4 |  218 |    3 |
+|                             172.20.0.81 -    0 | 16283 | 16283 |    2 |    3 |  273 |    3 |
+|                             172.20.1.93 -    1 | 16282 | 16281 |    2 |    3 |   58 |    5 |
+|                             172.20.0.89 -    1 | 16277 | 16275 |    2 |    8 |  177 |    5 |
+|      255-250-edge.pae-rs-br.adyl.net.br -    1 | 16280 | 16279 |   11 |   15 |  183 |   12 |
+|                   No response from host -  100 | 3283 |    0 |    0 |    0 |    0 |    0 |
+|                        security.upx.com -    1 | 16283 | 16282 |   19 |   20 |  183 |   21 |
+|                        security.upx.com -    1 | 16283 | 16282 |   19 |   20 |  178 |   50 |
+|                   No response from host -  100 | 3283 |    0 |    0 |    0 |    0 |    0 |
+|                   No response from host -  100 | 3283 |    0 |    0 |    0 |    0 |    0 |
+|                   No response from host -  100 | 3283 |    0 |    0 |    0 |    0 |    0 |
+|                   No response from host -  100 | 3283 |    0 |    0 |    0 |    0 |    0 |
+|                   No response from host -  100 | 3283 |    0 |    0 |    0 |    0 |    0 |
+|                   No response from host -  100 | 3283 |    0 |    0 |    0 |    0 |    0 |
+|                   No response from host -  100 | 3283 |    0 |    0 |    0 |    0 |    0 |
+|                   No response from host -  100 | 3283 |    0 |    0 |    0 |    0 |    0 |
+|                   No response from host -  100 | 3283 |    0 |    0 |    0 |    0 |    0 |
+|                   No response from host -  100 | 3283 |    0 |    0 |    0 |    0 |    0 |
+|                   No response from host -  100 | 3283 |    0 |    0 |    0 |    0 |    0 |
+|                   No response from host -  100 | 3283 |    0 |    0 |    0 |    0 |    0 |
+|                   No response from host -  100 | 3283 |    0 |    0 |    0 |    0 |    0 |
+|                   No response from host -  100 | 3283 |    0 |    0 |    0 |    0 |    0 |
+|                   No response from host -  100 | 3283 |    0 |    0 |    0 |    0 |    0 |
+|                   No response from host -  100 | 3283 |    0 |    0 |    0 |    0 |    0 |
+|                   No response from host -  100 | 3283 |    0 |    0 |    0 |    0 |    0 |
+|                   No response from host -  100 | 3283 |    0 |    0 |    0 |    0 |    0 |
+|________________________________________________|______|______|______|______|______|______|
+   WinMTR v0.92 GPL V2 by Appnor MSP - Fully Managed Hosting & Cloud Provider

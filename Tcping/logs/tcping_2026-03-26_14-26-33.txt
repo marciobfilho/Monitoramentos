@@ -1,0 +1,6 @@
+
+** Pinging continuously.  Press control-c to stop **
+
+2026:03:26 14:26:33 Probing 177.136.10.96:491/tcp - Port is open - time=26.655ms 
+2026:03:26 14:26:35 Probing 177.136.10.96:491/tcp - Port is open - time=34.599ms 
+Control-C

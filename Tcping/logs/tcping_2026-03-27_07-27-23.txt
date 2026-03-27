@@ -1,0 +1,32 @@
+
+** Pinging continuously.  Press control-c to stop **
+
+2026:03:27 07:27:24 Probing 177.136.10.96:491/tcp - Port is open - time=137.448ms 
+2026:03:27 07:27:25 Probing 177.136.10.96:491/tcp - Port is open - time=20.135ms 
+2026:03:27 07:27:27 Probing 177.136.10.96:491/tcp - Port is open - time=20.162ms 
+2026:03:27 07:27:29 Probing 177.136.10.96:491/tcp - Port is open - time=20.908ms 
+2026:03:27 07:27:30 Probing 177.136.10.96:491/tcp - Port is open - time=20.208ms 
+2026:03:27 07:27:32 Probing 177.136.10.96:491/tcp - Port is open - time=20.365ms 
+2026:03:27 07:27:33 Probing 177.136.10.96:491/tcp - Port is open - time=20.605ms 
+2026:03:27 07:27:35 Probing 177.136.10.96:491/tcp - Port is open - time=20.183ms 
+2026:03:27 07:27:37 Probing 177.136.10.96:491/tcp - Port is open - time=20.511ms 
+2026:03:27 07:27:38 Probing 177.136.10.96:491/tcp - Port is open - time=20.443ms 
+2026:03:27 07:27:40 Probing 177.136.10.96:491/tcp - Port is open - time=21.675ms 
+2026:03:27 07:27:41 Probing 177.136.10.96:491/tcp - Port is open - time=20.599ms 
+2026:03:27 07:27:43 Probing 177.136.10.96:491/tcp - Port is open - time=19.841ms 
+2026:03:27 07:27:45 Probing 177.136.10.96:491/tcp - Port is open - time=27.275ms 
+2026:03:27 07:27:46 Probing 177.136.10.96:491/tcp - Port is open - time=37.762ms 
+2026:03:27 07:27:48 Probing 177.136.10.96:491/tcp - Port is open - time=20.221ms 
+2026:03:27 07:27:50 Probing 177.136.10.96:491/tcp - Port is open - time=21.166ms 
+2026:03:27 07:27:51 Probing 177.136.10.96:491/tcp - Port is open - time=19.951ms 
+2026:03:27 07:27:53 Probing 177.136.10.96:491/tcp - Port is open - time=20.145ms 
+2026:03:27 07:27:54 Probing 177.136.10.96:491/tcp - Port is open - time=20.149ms 
+2026:03:27 07:27:56 Probing 177.136.10.96:491/tcp - Port is open - time=20.568ms 
+2026:03:27 07:27:58 Probing 177.136.10.96:491/tcp - Port is open - time=22.557ms 
+2026:03:27 07:27:59 Probing 177.136.10.96:491/tcp - Port is open - time=21.651ms 
+2026:03:27 07:28:01 Probing 177.136.10.96:491/tcp - Port is open - time=20.284ms 
+2026:03:27 07:28:02 Probing 177.136.10.96:491/tcp - Port is open - time=20.914ms 
+2026:03:27 07:28:04 Probing 177.136.10.96:491/tcp - Port is open - time=20.581ms 
+2026:03:27 07:28:06 Probing 177.136.10.96:491/tcp - Port is open - time=21.144ms 
+2026:03:27 07:28:07 Probing 177.136.10.96:491/tcp - Port is open - time=21.312ms 
+2026:03:27 07:28:09 Probing 177.136.10.96:491/tcp - Port is open - time=21.398ms 

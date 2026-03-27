@@ -1,0 +1,5 @@
+telnet 177.136.10.96 491
+
+tcping -t -d  unimedencosta183931.datasul.cloudtotvs.com.br 491
+
+tcping -t -d  unimedencosta183931.datasul.cloudtotvs.com.br 491 > 14012026tcping.txt
