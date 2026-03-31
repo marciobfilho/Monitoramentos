@@ -28,8 +28,8 @@ import urllib3
 from tqdm import tqdm # Importando a barra de progresso
 
 # Configurações Principais
-MAIN_URL = "https://unimedencosta183931.datasul.cloudtotvs.com.br:8777/logs/"
-DIRETORIO_BASE_LOCAL = r"\\192.168.0.247\Logs_Datasul\Producao"
+MAIN_URL = "https://"
+DIRETORIO_BASE_LOCAL = r""
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -47,7 +47,7 @@ def obter_conteudo_pagina(url):
             else: arquivos.append(href)
         return diretorios, arquivos
     except Exception as e:
-        tqdm.write(f"❌ Erro ao acessar {url}: {e}")
+        tqdm.write(f" Erro ao acessar {url}: {e}")
         return [], []
 
 def extrair_data(nome_arquivo):
@@ -79,7 +79,7 @@ def main():
     
     if not os.path.exists(DIRETORIO_BASE_LOCAL): os.makedirs(DIRETORIO_BASE_LOCAL)
 
-    print(f"\n🚀 Iniciando Coleta [{hora_inicio_str}]...")
+    print(f"\n Iniciando Coleta [{hora_inicio_str}]...")
     servicos, _ = obter_conteudo_pagina(MAIN_URL)
     
     # BARRA DE PROGRESSO GERAL (Serviços)
@@ -110,7 +110,7 @@ def main():
                 
                 # BARRA DE PROGRESSO SECUNDÁRIA (Arquivos da Pasta Pasoe)
                 if arquivos_da_pasta:
-                    pbar_pasta = tqdm(arquivos_da_pasta, desc=f"   📁 {pasta}", position=1, leave=False, colour='blue')
+                    pbar_pasta = tqdm(arquivos_da_pasta, desc=f"    {pasta}", position=1, leave=False, colour='blue')
                     for arq in pbar_pasta:
                         caminho_local = os.path.join(pasta_destino_consolidada, arq)
                         if not os.path.exists(caminho_local): 
@@ -124,7 +124,7 @@ def main():
             # 2. TRATA OS ARQUIVOS SOLTOS (Ativos e Históricos)
             if arquivos_soltos:
                 # BARRA DE PROGRESSO SECUNDÁRIA (Arquivos Raiz)
-                pbar_raiz = tqdm(arquivos_soltos, desc=f"   📄 Raiz ({nome_servico})", position=1, leave=False, colour='cyan')
+                pbar_raiz = tqdm(arquivos_soltos, desc=f"    Raiz ({nome_servico})", position=1, leave=False, colour='cyan')
                 for arquivo in pbar_raiz:
                     status = classificar_arquivo(arquivo)
                     url_arquivo = urljoin(url_servico, arquivo)
@@ -163,7 +163,7 @@ def main():
             arquivos_hist_fim = [a for a in arquivos_soltos_fim if classificar_arquivo(a) == 'HISTORICO']
             
             if len(pastas_horario_fim) > len(pastas_horario_inicio) or len(arquivos_hist_fim) > len(arquivos_hist_inicio):
-                tqdm.write("      ⚠️ Rotação detectada no servidor durante o download! Refazendo serviço...")
+                tqdm.write("       Rotação detectada no servidor durante o download! Refazendo serviço...")
                 continue
             else:
                 break 
@@ -174,7 +174,7 @@ def main():
                 if "_ATIVO" in arquivo_local and arquivo_local not in ativos_da_rodada:
                     try:
                         os.remove(os.path.join(raiz, arquivo_local))
-                        tqdm.write(f"      🧹 Limpeza: Removido snapshot antigo -> {arquivo_local}")
+                        tqdm.write(f"       Limpeza: Removido snapshot antigo -> {arquivo_local}")
                         qtd_limpos += 1
                     except Exception: pass
 
@@ -182,7 +182,7 @@ def main():
     duracao = tempo_fim - tempo_inicio
     relatorio = f"""
 ==================================================
-📊 RELATÓRIO DE COLETA DE LOGS
+RELATÓRIO DE COLETA DE LOGS
 ==================================================
 Início: {hora_inicio_str} | Fim: {tempo_fim.strftime("%d/%m/%Y %H:%M:%S")}
 Tempo total: {duracao}
