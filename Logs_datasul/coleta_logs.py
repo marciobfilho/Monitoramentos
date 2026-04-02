@@ -28,8 +28,8 @@ import urllib3
 from tqdm import tqdm # Importando a barra de progresso
 
 # Configurações Principais
-MAIN_URL = "https://"
-DIRETORIO_BASE_LOCAL = r""
+MAIN_URL = "https://unimedencosta183931.datasul.cloudtotvs.com.br:8777/logs/"
+DIRETORIO_BASE_LOCAL = r"\\192.168.0.247\Logs_Datasul\Producao"
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
