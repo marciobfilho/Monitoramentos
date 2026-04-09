@@ -8,14 +8,13 @@ Descrição:
 Script de automação (Web Scraping) que acessa o servidor de logs do Datasul, faz o download 
 dos históricos organizando-os em pastas por data (YYYY-MM-DD), atualiza os logs ativos na 
 raiz do serviço e expurga snapshots órfãos para poupar espaço em disco.
-Contém mecanismo de dupla-checagem para evitar corrupção de arquivos durante a rotação.
-Inclui barras de progresso (tqdm), resiliência contra lentidão no servidor TOTVS (Timeout)
-e tolerância a atrasos de cache em unidades de rede (exist_ok=True).
+Inclui auto-mapeamento de rede interno para rodar em Sessão 0, correção de Encoding UTF-8
+e gravação reversa de relatórios (mais recentes no topo). Versão limpa, sem emojis.
 
 Autor: Marcio Jose Gomes Bastos Filho
 Data de Criação: 25/03/2026
-Última Atualização: 06/04/2026
-Versão: 2.4
+Última Atualização: 09/04/2026
+Versão: 2.8
 =============================================================================================
 """
 
@@ -26,17 +25,28 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from datetime import datetime
 import urllib3
-from tqdm import tqdm # Importando a barra de progresso
+from tqdm import tqdm
+import subprocess
+import sys 
+
+# Força a saída de texto a usar UTF-8 (mantido por segurança para acentuações)
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8')
 
 # Configurações Principais
 MAIN_URL = "https://unimedencosta183931.datasul.cloudtotvs.com.br:8777/logs/"
-DIRETORIO_BASE_LOCAL = r"L:\Producao"
+
+# Variáveis para o Auto-Mapeamento do Python
+UNIDADE_REDE = "L:"
+CAMINHO_UNC = r"\\192.168.0.247\Logs_Datasul"
+DIRETORIO_BASE_LOCAL = rf"{UNIDADE_REDE}\Producao"
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def obter_conteudo_pagina(url):
     try:
-        # Aumentado para 60 segundos para suportar pastas com milhares de arquivos
         response = requests.get(url, verify=False, timeout=60)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -49,7 +59,7 @@ def obter_conteudo_pagina(url):
             else: arquivos.append(href)
         return diretorios, arquivos
     except Exception as e:
-        tqdm.write(f"❌ Erro ao acessar {url}: {e}")
+        tqdm.write(f"Falha ao acessar {url}: {e}")
         return [], []
 
 def extrair_data(nome_arquivo):
@@ -75,17 +85,22 @@ def main():
     tempo_inicio = datetime.now()
     hora_inicio_str = tempo_inicio.strftime("%d/%m/%Y %H:%M:%S")
     
+    # Auto-mapeamento de rede
+    if not os.path.exists(f"{UNIDADE_REDE}\\"):
+        try:
+            subprocess.run(["net", "use", UNIDADE_REDE, CAMINHO_UNC], check=True, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except subprocess.CalledProcessError:
+            pass 
+    
     qtd_historicos = 0
     qtd_snapshots = 0
     qtd_limpos = 0
     
-    # Criando diretório base de forma segura para rede
     os.makedirs(DIRETORIO_BASE_LOCAL, exist_ok=True)
 
-    print(f"\n🚀 Iniciando Coleta [{hora_inicio_str}]...")
+    print(f"\n Coleta iniciada em: {hora_inicio_str} ...")
     servicos, _ = obter_conteudo_pagina(MAIN_URL)
     
-    # BARRA DE PROGRESSO GERAL (Serviços)
     pbar_geral = tqdm(servicos, desc="Progresso Geral", position=0, leave=True, colour='green')
     
     for servico in pbar_geral:
@@ -103,7 +118,6 @@ def main():
             arquivos_hist_inicio = [a for a in arquivos_soltos if classificar_arquivo(a) == 'HISTORICO']
             ativos_da_rodada = []
             
-            # 1. TRATA AS PASTAS CONSOLIDADAS (Pasoe)
             for pasta in pastas_horario_inicio:
                 data_pasta_pasoe = pasta[:10] 
                 pasta_destino_consolidada = os.path.join(pasta_destino_servico, data_pasta_pasoe, pasta.replace('/', ''))
@@ -111,7 +125,6 @@ def main():
                 
                 _, arquivos_da_pasta = obter_conteudo_pagina(urljoin(url_servico, pasta))
                 
-                # BARRA DE PROGRESSO SECUNDÁRIA (Arquivos da Pasta Pasoe)
                 if arquivos_da_pasta:
                     pbar_pasta = tqdm(arquivos_da_pasta, desc=f"    {pasta}", position=1, leave=False, colour='blue')
                     for arq in pbar_pasta:
@@ -125,11 +138,9 @@ def main():
                                         for chunk in r.iter_content(8192): f.write(chunk)
                                 qtd_historicos += 1
                             except Exception as e:
-                                tqdm.write(f"      ❌ Erro ao baixar {arq}: {e}")
+                                tqdm.write(f"      Falha ao baixar {arq}: {e}")
             
-            # 2. TRATA OS ARQUIVOS SOLTOS (Ativos e Históricos)
             if arquivos_soltos:
-                # BARRA DE PROGRESSO SECUNDÁRIA (Arquivos Raiz)
                 pbar_raiz = tqdm(arquivos_soltos, desc=f"    Raiz ({nome_servico})", position=1, leave=False, colour='cyan')
                 for arquivo in pbar_raiz:
                     status = classificar_arquivo(arquivo)
@@ -149,7 +160,7 @@ def main():
                                     for chunk in r.iter_content(8192): f.write(chunk)
                             qtd_snapshots += 1
                         except Exception as e:
-                            tqdm.write(f"      ❌ Erro ao baixar {arquivo}: {e}")
+                            tqdm.write(f"      Falha ao baixar {arquivo}: {e}")
                             
                     elif status == 'HISTORICO':
                         pasta_data = extrair_data(arquivo)
@@ -167,26 +178,24 @@ def main():
                                         for chunk in r.iter_content(8192): f.write(chunk)
                                 qtd_historicos += 1
                             except Exception as e:
-                                tqdm.write(f"      ❌ Erro ao baixar {arquivo}: {e}")
+                                tqdm.write(f"      Falha ao baixar {arquivo}: {e}")
 
-            # --- CHECAGEM PÓS-DOWNLOAD (Rotacionou no meio?) ---
             subdiretorios_fim, arquivos_soltos_fim = obter_conteudo_pagina(url_servico)
             pastas_horario_fim = [d for d in subdiretorios_fim if re.match(r'\d{4}-\d{2}-\d{2}_\d{2}_\d{2}/', d)]
             arquivos_hist_fim = [a for a in arquivos_soltos_fim if classificar_arquivo(a) == 'HISTORICO']
             
             if len(pastas_horario_fim) > len(pastas_horario_inicio) or len(arquivos_hist_fim) > len(arquivos_hist_inicio):
-                tqdm.write("      ⚠️ Rotação detectada no servidor durante o download! Refazendo serviço...")
+                tqdm.write("      Rotação detectada no servidor durante o download! Refazendo serviço...")
                 continue
             else:
                 break 
 
-        # 3. FAXINA DE SNAPSHOTS ÓRFÃOS
         for raiz, dirs, arquivos_locais in os.walk(pasta_destino_servico):
             for arquivo_local in arquivos_locais:
                 if "_ATIVO" in arquivo_local and arquivo_local not in ativos_da_rodada:
                     try:
                         os.remove(os.path.join(raiz, arquivo_local))
-                        tqdm.write(f"      🧹 Limpeza: Removido snapshot antigo -> {arquivo_local}")
+                        tqdm.write(f"      Removido snapshot antigo -> {arquivo_local}")
                         qtd_limpos += 1
                     except Exception: pass
 
@@ -194,7 +203,7 @@ def main():
     duracao = tempo_fim - tempo_inicio
     relatorio = f"""
 ==================================================
-📊 RELATÓRIO DE COLETA DE LOGS
+RELATÓRIO DE COLETA DE LOGS
 ==================================================
 Início: {hora_inicio_str} | Fim: {tempo_fim.strftime("%d/%m/%Y %H:%M:%S")}
 Tempo total: {duracao}
@@ -205,9 +214,20 @@ Snapshots antigos removidos:         {qtd_limpos}
 ==================================================
 """
     print(relatorio)
+    
+    # Lógica para escrever no TOPO do arquivo
+    arquivo_log_relatorio = os.path.join(DIRETORIO_BASE_LOCAL, "relatorio_coleta.txt")
+    conteudo_antigo = ""
+    
+    if os.path.exists(arquivo_log_relatorio):
+        try:
+            with open(arquivo_log_relatorio, "r", encoding="utf-8") as f:
+                conteudo_antigo = f.read()
+        except Exception: pass
+        
     try:
-        with open(os.path.join(DIRETORIO_BASE_LOCAL, "relatorio_coleta.txt"), "a", encoding="utf-8") as f:
-            f.write(relatorio + "\n")
+        with open(arquivo_log_relatorio, "w", encoding="utf-8") as f:
+            f.write(relatorio + "\n" + conteudo_antigo)
     except Exception: pass
 
 if __name__ == "__main__":
