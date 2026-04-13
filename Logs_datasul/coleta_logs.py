@@ -59,7 +59,7 @@ def obter_conteudo_pagina(url):
             else: arquivos.append(href)
         return diretorios, arquivos
     except Exception as e:
-        tqdm.write(f"Falha ao acessar {url}: {e}")
+        tqdm.write(f"[ERRO] Falha ao acessar {url}: {e}")
         return [], []
 
 def extrair_data(nome_arquivo):
@@ -98,7 +98,7 @@ def main():
     
     os.makedirs(DIRETORIO_BASE_LOCAL, exist_ok=True)
 
-    print(f"\n Coleta iniciada em: {hora_inicio_str} ...")
+    print(f"\n[INICIO] Coleta iniciada em: {hora_inicio_str} ...")
     servicos, _ = obter_conteudo_pagina(MAIN_URL)
     
     pbar_geral = tqdm(servicos, desc="Progresso Geral", position=0, leave=True, colour='green')
@@ -138,7 +138,7 @@ def main():
                                         for chunk in r.iter_content(8192): f.write(chunk)
                                 qtd_historicos += 1
                             except Exception as e:
-                                tqdm.write(f"      Falha ao baixar {arq}: {e}")
+                                tqdm.write(f"      [ERRO] Falha ao baixar {arq}: {e}")
             
             if arquivos_soltos:
                 pbar_raiz = tqdm(arquivos_soltos, desc=f"    Raiz ({nome_servico})", position=1, leave=False, colour='cyan')
@@ -160,7 +160,7 @@ def main():
                                     for chunk in r.iter_content(8192): f.write(chunk)
                             qtd_snapshots += 1
                         except Exception as e:
-                            tqdm.write(f"      Falha ao baixar {arquivo}: {e}")
+                            tqdm.write(f"      [ERRO] Falha ao baixar {arquivo}: {e}")
                             
                     elif status == 'HISTORICO':
                         pasta_data = extrair_data(arquivo)
@@ -178,14 +178,14 @@ def main():
                                         for chunk in r.iter_content(8192): f.write(chunk)
                                 qtd_historicos += 1
                             except Exception as e:
-                                tqdm.write(f"      Falha ao baixar {arquivo}: {e}")
+                                tqdm.write(f"      [ERRO] Falha ao baixar {arquivo}: {e}")
 
             subdiretorios_fim, arquivos_soltos_fim = obter_conteudo_pagina(url_servico)
             pastas_horario_fim = [d for d in subdiretorios_fim if re.match(r'\d{4}-\d{2}-\d{2}_\d{2}_\d{2}/', d)]
             arquivos_hist_fim = [a for a in arquivos_soltos_fim if classificar_arquivo(a) == 'HISTORICO']
             
             if len(pastas_horario_fim) > len(pastas_horario_inicio) or len(arquivos_hist_fim) > len(arquivos_hist_inicio):
-                tqdm.write("      Rotação detectada no servidor durante o download! Refazendo serviço...")
+                tqdm.write("      [ATENCAO] Rotação detectada no servidor durante o download! Refazendo serviço...")
                 continue
             else:
                 break 
@@ -195,7 +195,7 @@ def main():
                 if "_ATIVO" in arquivo_local and arquivo_local not in ativos_da_rodada:
                     try:
                         os.remove(os.path.join(raiz, arquivo_local))
-                        tqdm.write(f"      Removido snapshot antigo -> {arquivo_local}")
+                        tqdm.write(f"      [LIMPEZA] Removido snapshot antigo -> {arquivo_local}")
                         qtd_limpos += 1
                     except Exception: pass
 
