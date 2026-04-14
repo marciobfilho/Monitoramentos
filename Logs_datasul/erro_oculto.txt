@@ -1,69 +1,54 @@
 
-[INICIO] Coleta iniciada em: 14/04/2026 09:10:02 ...
+[INICIO] Coleta iniciada em: 14/04/2026 13:10:02 ...
 Progresso Geral:   0%|[32m          [0m| 0/5 [00:00<?, ?it/s]Progresso Geral:   0%|[32m          [0m| 0/5 [00:00<?, ?it/s, Processando: jboss_autorizador]
     Raiz (jboss_autorizador):   0%|[36m          [0m| 0/127 [00:00<?, ?it/s][A
     Raiz (jboss_autorizador):   0%|[36m          [0m| 0/127 [00:00<?, ?it/s, Atualizando: boot_ATIVO.log][A
-    Raiz (jboss_autorizador):   1%|[36m          [0m| 1/127 [00:00<00:31,  3.97it/s, Atualizando: boot_ATIVO.log][A
-    Raiz (jboss_autorizador):   6%|[36m▋         [0m| 8/127 [00:00<00:04, 27.69it/s, Atualizando: boot_ATIVO.log][A
-    Raiz (jboss_autorizador):  12%|[36m█▏        [0m| 15/127 [00:00<00:02, 41.91it/s, Atualizando: boot_ATIVO.log][A
-    Raiz (jboss_autorizador):  17%|[36m█▋        [0m| 22/127 [00:00<00:02, 50.10it/s, Atualizando: boot_ATIVO.log][A
-    Raiz (jboss_autorizador):  24%|[36m██▎       [0m| 30/127 [00:00<00:01, 57.13it/s, Atualizando: boot_ATIVO.log][A
-    Raiz (jboss_autorizador):  29%|[36m██▉       [0m| 37/127 [00:00<00:01, 59.36it/s, Atualizando: boot_ATIVO.log][A
-    Raiz (jboss_autorizador):  35%|[36m███▌      [0m| 45/127 [00:00<00:01, 62.30it/s, Atualizando: boot_ATIVO.log][A
-    Raiz (jboss_autorizador):  42%|[36m████▏     [0m| 53/127 [00:01<00:01, 65.71it/s, Atualizando: boot_ATIVO.log][A
-    Raiz (jboss_autorizador):  48%|[36m████▊     [0m| 61/127 [00:01<00:00, 69.29it/s, Atualizando: boot_ATIVO.log][A
-    Raiz (jboss_autorizador):  54%|[36m█████▍    [0m| 69/127 [00:01<00:00, 71.06it/s, Atualizando: boot_ATIVO.log][A
-    Raiz (jboss_autorizador):  61%|[36m██████    [0m| 77/127 [00:01<00:00, 72.27it/s, Atualizando: boot_ATIVO.log][A
-    Raiz (jboss_autorizador):  61%|[36m██████    [0m| 77/127 [00:01<00:00, 72.27it/s, Atualizando: localhost_access_log.2026-04-14_ATIVO.log][A
-    Raiz (jboss_autorizador):  61%|[36m██████    [0m| 77/127 [00:02<00:00, 72.27it/s, Atualizando: server_ATIVO.log]                         [A
-    Raiz (jboss_autorizador):  67%|[36m██████▋   [0m| 85/127 [00:13<00:19,  2.16it/s, Atualizando: server_ATIVO.log][A
-    Raiz (jboss_autorizador):  71%|[36m███████   [0m| 90/127 [00:13<00:13,  2.72it/s, Atualizando: server_ATIVO.log][A
-    Raiz (jboss_autorizador):  76%|[36m███████▋  [0m| 97/127 [00:13<00:07,  3.80it/s, Atualizando: server_ATIVO.log][A
-    Raiz (jboss_autorizador):  81%|[36m████████  [0m| 103/127 [00:13<00:04,  5.05it/s, Atualizando: server_ATIVO.log][A
-    Raiz (jboss_autorizador):  86%|[36m████████▌ [0m| 109/127 [00:13<00:02,  6.74it/s, Atualizando: server_ATIVO.log][A
-    Raiz (jboss_autorizador):  91%|[36m█████████▏[0m| 116/127 [00:13<00:01,  9.42it/s, Atualizando: server_ATIVO.log][A
-    Raiz (jboss_autorizador):  97%|[36m█████████▋[0m| 123/127 [00:13<00:00, 12.85it/s, Atualizando: server_ATIVO.log][A
-                                                                                                              [AProgresso Geral:  20%|[32m██        [0m| 1/5 [00:14<00:57, 14.46s/it, Processando: jboss_autorizador]Progresso Geral:  20%|[32m██        [0m| 1/5 [00:14<00:57, 14.46s/it, Processando: jboss_foundation_gpu]
+    Raiz (jboss_autorizador):   1%|[36m          [0m| 1/127 [00:00<00:27,  4.51it/s, Atualizando: boot_ATIVO.log][A
+    Raiz (jboss_autorizador):   7%|[36m▋         [0m| 9/127 [00:00<00:03, 33.22it/s, Atualizando: boot_ATIVO.log][A
+    Raiz (jboss_autorizador):  14%|[36m█▍        [0m| 18/127 [00:00<00:02, 51.10it/s, Atualizando: boot_ATIVO.log][A
+    Raiz (jboss_autorizador):  22%|[36m██▏       [0m| 28/127 [00:00<00:01, 65.08it/s, Atualizando: boot_ATIVO.log][A
+    Raiz (jboss_autorizador):  29%|[36m██▉       [0m| 37/127 [00:00<00:01, 72.00it/s, Atualizando: boot_ATIVO.log][A
+    Raiz (jboss_autorizador):  36%|[36m███▌      [0m| 46/127 [00:00<00:01, 76.92it/s, Atualizando: boot_ATIVO.log][A
+    Raiz (jboss_autorizador):  43%|[36m████▎     [0m| 55/127 [00:00<00:00, 79.55it/s, Atualizando: boot_ATIVO.log][A
+    Raiz (jboss_autorizador):  51%|[36m█████     [0m| 65/127 [00:00<00:00, 84.56it/s, Atualizando: boot_ATIVO.log][A
+    Raiz (jboss_autorizador):  58%|[36m█████▊    [0m| 74/127 [00:01<00:00, 85.93it/s, Atualizando: boot_ATIVO.log][A
+    Raiz (jboss_autorizador):  58%|[36m█████▊    [0m| 74/127 [00:01<00:00, 85.93it/s, Atualizando: localhost_access_log.2026-04-14_ATIVO.log][A
+    Raiz (jboss_autorizador):  58%|[36m█████▊    [0m| 74/127 [00:03<00:00, 85.93it/s, Atualizando: server_ATIVO.log]                         [A
+    Raiz (jboss_autorizador):  58%|[36m█████▊    [0m| 74/127 [00:19<00:00, 85.93it/s, Atualizando: server_ATIVO.log][A
+    Raiz (jboss_autorizador):  65%|[36m██████▌   [0m| 83/127 [00:26<00:38,  1.15it/s, Atualizando: server_ATIVO.log][A
+    Raiz (jboss_autorizador):  66%|[36m██████▌   [0m| 84/127 [00:26<00:36,  1.19it/s, Atualizando: server_ATIVO.log][A
+    Raiz (jboss_autorizador):  72%|[36m███████▏  [0m| 91/127 [00:26<00:20,  1.72it/s, Atualizando: server_ATIVO.log][A
+    Raiz (jboss_autorizador):  76%|[36m███████▋  [0m| 97/127 [00:26<00:12,  2.34it/s, Atualizando: server_ATIVO.log][A
+    Raiz (jboss_autorizador):  80%|[36m████████  [0m| 102/127 [00:27<00:08,  3.06it/s, Atualizando: server_ATIVO.log][A
+    Raiz (jboss_autorizador):  84%|[36m████████▍ [0m| 107/127 [00:27<00:04,  4.06it/s, Atualizando: server_ATIVO.log][A
+    Raiz (jboss_autorizador):  89%|[36m████████▉ [0m| 113/127 [00:27<00:02,  5.67it/s, Atualizando: server_ATIVO.log][A
+    Raiz (jboss_autorizador):  94%|[36m█████████▎[0m| 119/127 [00:27<00:01,  7.83it/s, Atualizando: server_ATIVO.log][A
+    Raiz (jboss_autorizador):  98%|[36m█████████▊[0m| 124/127 [00:27<00:00, 10.09it/s, Atualizando: server_ATIVO.log][A
+                                                                                                              [AProgresso Geral:  20%|[32m██        [0m| 1/5 [00:28<01:52, 28.16s/it, Processando: jboss_autorizador]Progresso Geral:  20%|[32m██        [0m| 1/5 [00:28<01:52, 28.16s/it, Processando: jboss_foundation_gpu]
     Raiz (jboss_foundation_gpu):   0%|[36m          [0m| 0/19 [00:00<?, ?it/s][A
     Raiz (jboss_foundation_gpu):   0%|[36m          [0m| 0/19 [00:00<?, ?it/s, Atualizando: boot_ATIVO.log][A
-    Raiz (jboss_foundation_gpu):   5%|[36m▌         [0m| 1/19 [00:00<00:03,  5.38it/s, Atualizando: boot_ATIVO.log][A
-    Raiz (jboss_foundation_gpu):  42%|[36m████▏     [0m| 8/19 [00:00<00:00, 31.86it/s, Atualizando: boot_ATIVO.log][A
-    Raiz (jboss_foundation_gpu):  42%|[36m████▏     [0m| 8/19 [00:00<00:00, 31.86it/s, Atualizando: monitortissnet_ATIVO.log][A
-    Raiz (jboss_foundation_gpu):  42%|[36m████▏     [0m| 8/19 [00:00<00:00, 31.86it/s, Atualizando: server_ATIVO.log]        [A
-    Raiz (jboss_foundation_gpu):  63%|[36m██████▎   [0m| 12/19 [00:00<00:00, 16.54it/s, Atualizando: server_ATIVO.log][A
-    Raiz (jboss_foundation_gpu):  63%|[36m██████▎   [0m| 12/19 [00:00<00:00, 16.54it/s, Atualizando: server.log_ATIVO.1][A
-    Raiz (jboss_foundation_gpu):  95%|[36m█████████▍[0m| 18/19 [00:02<00:00,  4.67it/s, Atualizando: server.log_ATIVO.1][A
-    Raiz (jboss_foundation_gpu):  95%|[36m█████████▍[0m| 18/19 [00:02<00:00,  4.67it/s, Atualizando: sib_ATIVO.log]     [A
-                                                                                                            [AProgresso Geral:  40%|[32m████      [0m| 2/5 [00:18<00:24,  8.06s/it, Processando: jboss_foundation_gpu]Progresso Geral:  40%|[32m████      [0m| 2/5 [00:18<00:24,  8.06s/it, Processando: jboss_foundation_ptu]
+    Raiz (jboss_foundation_gpu):   5%|[36m▌         [0m| 1/19 [00:00<00:03,  5.30it/s, Atualizando: boot_ATIVO.log][A
+    Raiz (jboss_foundation_gpu):  42%|[36m████▏     [0m| 8/19 [00:00<00:00, 32.87it/s, Atualizando: boot_ATIVO.log][A
+    Raiz (jboss_foundation_gpu):  42%|[36m████▏     [0m| 8/19 [00:00<00:00, 32.87it/s, Atualizando: monitortissnet_ATIVO.log][A
+    Raiz (jboss_foundation_gpu):  42%|[36m████▏     [0m| 8/19 [00:00<00:00, 32.87it/s, Atualizando: server_ATIVO.log]        [A
+    Raiz (jboss_foundation_gpu):  68%|[36m██████▊   [0m| 13/19 [00:00<00:00, 18.38it/s, Atualizando: server_ATIVO.log][A
+    Raiz (jboss_foundation_gpu):  68%|[36m██████▊   [0m| 13/19 [00:00<00:00, 18.38it/s, Atualizando: server.log_ATIVO.1][A
+    Raiz (jboss_foundation_gpu):  95%|[36m█████████▍[0m| 18/19 [00:03<00:00,  3.93it/s, Atualizando: server.log_ATIVO.1][A
+    Raiz (jboss_foundation_gpu):  95%|[36m█████████▍[0m| 18/19 [00:03<00:00,  3.93it/s, Atualizando: sib_ATIVO.log]     [A
+                                                                                                            [AProgresso Geral:  40%|[32m████      [0m| 2/5 [00:32<00:42, 14.04s/it, Processando: jboss_foundation_gpu]Progresso Geral:  40%|[32m████      [0m| 2/5 [00:32<00:42, 14.04s/it, Processando: jboss_foundation_ptu]
     Raiz (jboss_foundation_ptu):   0%|[36m          [0m| 0/18 [00:00<?, ?it/s][A
     Raiz (jboss_foundation_ptu):   0%|[36m          [0m| 0/18 [00:00<?, ?it/s, Atualizando: boot_ATIVO.log][A
-    Raiz (jboss_foundation_ptu):   6%|[36m▌         [0m| 1/18 [00:00<00:03,  4.52it/s, Atualizando: boot_ATIVO.log][A
-    Raiz (jboss_foundation_ptu):   6%|[36m▌         [0m| 1/18 [00:00<00:03,  4.52it/s, Atualizando: monitortissnet_ATIVO.log][A
-    Raiz (jboss_foundation_ptu):  44%|[36m████▍     [0m| 8/18 [00:00<00:00, 18.57it/s, Atualizando: monitortissnet_ATIVO.log][A
-    Raiz (jboss_foundation_ptu):  44%|[36m████▍     [0m| 8/18 [00:00<00:00, 18.57it/s, Atualizando: server_ATIVO.log]        [A
-    Raiz (jboss_foundation_ptu):  56%|[36m█████▌    [0m| 10/18 [00:01<00:01,  7.25it/s, Atualizando: server_ATIVO.log][A
-    Raiz (jboss_foundation_ptu):  78%|[36m███████▊  [0m| 14/18 [00:01<00:00, 11.12it/s, Atualizando: server_ATIVO.log][A
-    Raiz (jboss_foundation_ptu):  78%|[36m███████▊  [0m| 14/18 [00:01<00:00, 11.12it/s, Atualizando: server.log_ATIVO.1][A
-    Raiz (jboss_foundation_ptu):  94%|[36m█████████▍[0m| 17/18 [00:01<00:00, 11.52it/s, Atualizando: server.log_ATIVO.1][A
-    Raiz (jboss_foundation_ptu):  94%|[36m█████████▍[0m| 17/18 [00:01<00:00, 11.52it/s, Atualizando: sib_ATIVO.log]     [A
-                                                                                                            [AProgresso Geral:  60%|[32m██████    [0m| 3/5 [00:20<00:10,  5.39s/it, Processando: jboss_foundation_ptu]Progresso Geral:  60%|[32m██████    [0m| 3/5 [00:20<00:10,  5.39s/it, Processando: logs_pasoe]          
-    2026-04-13_09_00/:   0%|[34m          [0m| 0/1 [00:00<?, ?it/s][A
-                                                            [A
-    2026-04-13_09_30/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s][A
-                                                            [A
-    2026-04-13_10_00/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s][A
-                                                            [A
-    2026-04-13_10_30/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s][A
-                                                            [A
-    2026-04-13_11_00/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s][A
-                                                            [A
-    2026-04-13_11_30/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s][A
-                                                            [A
-    2026-04-13_12_00/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s][A
-                                                            [A
-    2026-04-13_12_30/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s][A
-                                                            [A
-    2026-04-13_13_00/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s][A
+    Raiz (jboss_foundation_ptu):   6%|[36m▌         [0m| 1/18 [00:00<00:03,  4.71it/s, Atualizando: boot_ATIVO.log][A
+    Raiz (jboss_foundation_ptu):  39%|[36m███▉      [0m| 7/18 [00:00<00:00, 26.73it/s, Atualizando: boot_ATIVO.log][A
+    Raiz (jboss_foundation_ptu):  39%|[36m███▉      [0m| 7/18 [00:00<00:00, 26.73it/s, Atualizando: monitortissnet_ATIVO.log][A
+    Raiz (jboss_foundation_ptu):  39%|[36m███▉      [0m| 7/18 [00:00<00:00, 26.73it/s, Atualizando: server_ATIVO.log]        [A
+    Raiz (jboss_foundation_ptu):  61%|[36m██████    [0m| 11/18 [00:01<00:01,  6.13it/s, Atualizando: server_ATIVO.log][A
+    Raiz (jboss_foundation_ptu):  83%|[36m████████▎ [0m| 15/18 [00:01<00:00,  9.09it/s, Atualizando: server_ATIVO.log][A
+    Raiz (jboss_foundation_ptu):  83%|[36m████████▎ [0m| 15/18 [00:01<00:00,  9.09it/s, Atualizando: server.log_ATIVO.1][A
+    Raiz (jboss_foundation_ptu):  83%|[36m████████▎ [0m| 15/18 [00:01<00:00,  9.09it/s, Atualizando: sib_ATIVO.log]     [A
+    Raiz (jboss_foundation_ptu): 100%|[36m██████████[0m| 18/18 [00:02<00:00,  8.44it/s, Atualizando: sib_ATIVO.log][A
+                                                                                                            [AProgresso Geral:  60%|[32m██████    [0m| 3/5 [00:34<00:17,  8.80s/it, Processando: jboss_foundation_ptu]Progresso Geral:  60%|[32m██████    [0m| 3/5 [00:34<00:17,  8.80s/it, Processando: logs_pasoe]          
+    2026-04-13_13_00/:   0%|[34m          [0m| 0/2 [00:00<?, ?it/s][A
                                                             [A
     2026-04-13_13_30/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s][A
                                                             [A
@@ -142,60 +127,96 @@
     2026-04-14_08_00/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s][A
                                                             [A
     2026-04-14_08_30/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s][A
-    2026-04-14_08_30/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s, Baixando: dts_c652ui-atr_p.agent.2026-04-14.08_30.log][A
-    2026-04-14_08_30/:  20%|[34m██        [0m| 1/5 [03:47<15:10, 227.59s/it, Baixando: dts_c652ui-atr_p.agent.2026-04-14.08_30.log][A
-    2026-04-14_08_30/:  20%|[34m██        [0m| 1/5 [03:47<15:10, 227.59s/it, Baixando: dts_c652ui-fnd_p.agent.2026-04-14.08_30.log][A
-    2026-04-14_08_30/:  40%|[34m████      [0m| 2/5 [03:51<04:47, 95.80s/it, Baixando: dts_c652ui-fnd_p.agent.2026-04-14.08_30.log] [A
-    2026-04-14_08_30/:  40%|[34m████      [0m| 2/5 [03:51<04:47, 95.80s/it, Baixando: dts_c652ui_p.agent.2026-04-14.08_30.log]    [A
-    2026-04-14_08_30/:  60%|[34m██████    [0m| 3/5 [06:00<03:42, 111.11s/it, Baixando: dts_c652ui_p.agent.2026-04-14.08_30.log][A
-    2026-04-14_08_30/:  60%|[34m██████    [0m| 3/5 [06:00<03:42, 111.11s/it, Baixando: rpw_c652ui-log_p.agent.2026-04-14.08_30.log][A
-    2026-04-14_08_30/:  80%|[34m████████  [0m| 4/5 [06:05<01:09, 69.40s/it, Baixando: rpw_c652ui-log_p.agent.2026-04-14.08_30.log] [A
-    2026-04-14_08_30/:  80%|[34m████████  [0m| 4/5 [06:05<01:09, 69.40s/it, Baixando: rpw_c652ui-rpw_p.agent.2026-04-14.08_30.log][A
-    2026-04-14_08_30/: 100%|[34m██████████[0m| 5/5 [06:06<00:00, 44.50s/it, Baixando: rpw_c652ui-rpw_p.agent.2026-04-14.08_30.log][A
-                                                                                                                           [A
+                                                            [A
     2026-04-14_09_00/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s][A
-    2026-04-14_09_00/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s, Baixando: dts_c652ui-atr_p.agent.2026-04-14.09_00.log][A
-    2026-04-14_09_00/:  20%|[34m██        [0m| 1/5 [05:07<20:28, 307.08s/it, Baixando: dts_c652ui-atr_p.agent.2026-04-14.09_00.log][A
-    2026-04-14_09_00/:  20%|[34m██        [0m| 1/5 [05:07<20:28, 307.08s/it, Baixando: dts_c652ui-fnd_p.agent.2026-04-14.09_00.log][A
-    2026-04-14_09_00/:  40%|[34m████      [0m| 2/5 [05:15<06:33, 131.27s/it, Baixando: dts_c652ui-fnd_p.agent.2026-04-14.09_00.log][A
-    2026-04-14_09_00/:  40%|[34m████      [0m| 2/5 [05:15<06:33, 131.27s/it, Baixando: dts_c652ui_p.agent.2026-04-14.09_00.log]    [A
-    2026-04-14_09_00/:  60%|[34m██████    [0m| 3/5 [07:15<04:12, 126.19s/it, Baixando: dts_c652ui_p.agent.2026-04-14.09_00.log][A
-    2026-04-14_09_00/:  60%|[34m██████    [0m| 3/5 [07:15<04:12, 126.19s/it, Baixando: rpw_c652ui-log_p.agent.2026-04-14.09_00.log][A
-    2026-04-14_09_00/:  80%|[34m████████  [0m| 4/5 [07:21<01:18, 78.75s/it, Baixando: rpw_c652ui-log_p.agent.2026-04-14.09_00.log] [A
-    2026-04-14_09_00/:  80%|[34m████████  [0m| 4/5 [07:21<01:18, 78.75s/it, Baixando: rpw_c652ui-rpw_p.agent.2026-04-14.09_00.log][A
-    2026-04-14_09_00/: 100%|[34m██████████[0m| 5/5 [07:23<00:00, 50.95s/it, Baixando: rpw_c652ui-rpw_p.agent.2026-04-14.09_00.log][A
+                                                            [A
+    2026-04-14_09_30/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s][A
+                                                            [A
+    2026-04-14_10_00/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s][A
+                                                            [A
+    2026-04-14_10_30/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s][A
+                                                            [A
+    2026-04-14_11_00/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s][A
+                                                            [A
+    2026-04-14_11_30/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s][A
+                                                            [A
+    2026-04-14_12_00/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s][A
+                                                            [A
+    2026-04-14_12_30/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s][A
+    2026-04-14_12_30/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s, Baixando: dts_c652ui-atr_p.agent.2026-04-14.12_30.log][A
+    2026-04-14_12_30/:  20%|[34m██        [0m| 1/5 [00:37<02:30, 37.68s/it, Baixando: dts_c652ui-atr_p.agent.2026-04-14.12_30.log][A
+    2026-04-14_12_30/:  20%|[34m██        [0m| 1/5 [00:37<02:30, 37.68s/it, Baixando: dts_c652ui-fnd_p.agent.2026-04-14.12_30.log][A
+    2026-04-14_12_30/:  40%|[34m████      [0m| 2/5 [00:38<00:48, 16.25s/it, Baixando: dts_c652ui-fnd_p.agent.2026-04-14.12_30.log][A
+    2026-04-14_12_30/:  40%|[34m████      [0m| 2/5 [00:38<00:48, 16.25s/it, Baixando: dts_c652ui_p.agent.2026-04-14.12_30.log]    [A
+    2026-04-14_12_30/:  60%|[34m██████    [0m| 3/5 [01:01<00:38, 19.07s/it, Baixando: dts_c652ui_p.agent.2026-04-14.12_30.log][A
+    2026-04-14_12_30/:  60%|[34m██████    [0m| 3/5 [01:01<00:38, 19.07s/it, Baixando: rpw_c652ui-log_p.agent.2026-04-14.12_30.log][A
+    2026-04-14_12_30/:  80%|[34m████████  [0m| 4/5 [01:11<00:15, 15.37s/it, Baixando: rpw_c652ui-log_p.agent.2026-04-14.12_30.log][A
+    2026-04-14_12_30/:  80%|[34m████████  [0m| 4/5 [01:11<00:15, 15.37s/it, Baixando: rpw_c652ui-rpw_p.agent.2026-04-14.12_30.log][A
+    2026-04-14_12_30/: 100%|[34m██████████[0m| 5/5 [01:11<00:00,  9.92s/it, Baixando: rpw_c652ui-rpw_p.agent.2026-04-14.12_30.log][A
+                                                                                                                           [A
+    2026-04-14_13_00/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s][A
+    2026-04-14_13_00/:   0%|[34m          [0m| 0/5 [00:00<?, ?it/s, Baixando: dts_c652ui-atr_p.agent.2026-04-14.13_00.log][A
+    2026-04-14_13_00/:  20%|[34m██        [0m| 1/5 [01:12<04:51, 72.79s/it, Baixando: dts_c652ui-atr_p.agent.2026-04-14.13_00.log][A
+    2026-04-14_13_00/:  20%|[34m██        [0m| 1/5 [01:12<04:51, 72.79s/it, Baixando: dts_c652ui-fnd_p.agent.2026-04-14.13_00.log][A
+    2026-04-14_13_00/:  40%|[34m████      [0m| 2/5 [01:14<01:33, 31.26s/it, Baixando: dts_c652ui-fnd_p.agent.2026-04-14.13_00.log][A
+    2026-04-14_13_00/:  40%|[34m████      [0m| 2/5 [01:14<01:33, 31.26s/it, Baixando: dts_c652ui_p.agent.2026-04-14.13_00.log]    [A
+    2026-04-14_13_00/:  60%|[34m██████    [0m| 3/5 [01:45<01:02, 31.15s/it, Baixando: dts_c652ui_p.agent.2026-04-14.13_00.log][A
+    2026-04-14_13_00/:  60%|[34m██████    [0m| 3/5 [01:45<01:02, 31.15s/it, Baixando: rpw_c652ui-log_p.agent.2026-04-14.13_00.log][A
+    2026-04-14_13_00/:  80%|[34m████████  [0m| 4/5 [01:49<00:20, 20.14s/it, Baixando: rpw_c652ui-log_p.agent.2026-04-14.13_00.log][A
+    2026-04-14_13_00/:  80%|[34m████████  [0m| 4/5 [01:49<00:20, 20.14s/it, Baixando: rpw_c652ui-rpw_p.agent.2026-04-14.13_00.log][A
+    2026-04-14_13_00/: 100%|[34m██████████[0m| 5/5 [01:49<00:00, 12.96s/it, Baixando: rpw_c652ui-rpw_p.agent.2026-04-14.13_00.log][A
                                                                                                                            [A
     Raiz (logs_pasoe):   0%|[36m          [0m| 0/8 [00:00<?, ?it/s][A
     Raiz (logs_pasoe):   0%|[36m          [0m| 0/8 [00:00<?, ?it/s, Baixando Histórico: dts_c652ui-atr_p.agent.2026-03-26.log][A                                                                                       
-                                                                                                                       [AProgresso Geral:  60%|[32m██████    [0m| 3/5 [14:01<00:10,  5.39s/it, Processando: logs_pasoe]
+                                                                                                                       [AProgresso Geral:  60%|[32m██████    [0m| 3/5 [03:46<00:17,  8.80s/it, Processando: logs_pasoe]
     Raiz (logs_pasoe):   0%|[36m          [0m| 0/8 [00:00<?, ?it/s, Baixando Histórico: dts_c652ui-atr_p.agent.2026-03-26.log][A
-    Raiz (logs_pasoe):  12%|[36m█▎        [0m| 1/8 [00:00<00:01,  5.22it/s, Baixando Histórico: dts_c652ui-atr_p.agent.2026-03-26.log][A
-    Raiz (logs_pasoe):  12%|[36m█▎        [0m| 1/8 [00:00<00:01,  5.22it/s, Atualizando: dts_c652ui-atr_p.agent.2026-04-14_ATIVO.log] [A
-    Raiz (logs_pasoe):  25%|[36m██▌       [0m| 2/8 [04:05<14:25, 144.23s/it, Atualizando: dts_c652ui-atr_p.agent.2026-04-14_ATIVO.log][A
-    Raiz (logs_pasoe):  25%|[36m██▌       [0m| 2/8 [04:05<14:25, 144.23s/it, Atualizando: dts_c652ui-fnd_p.agent.2026-04-14_ATIVO.log][A
-    Raiz (logs_pasoe):  38%|[36m███▊      [0m| 3/8 [04:13<06:50, 82.06s/it, Atualizando: dts_c652ui-fnd_p.agent.2026-04-14_ATIVO.log] [A
-    Raiz (logs_pasoe):  38%|[36m███▊      [0m| 3/8 [04:13<06:50, 82.06s/it, Baixando Histórico: dts_c652ui_p.agent.2026-03-26.log]   [A                                                                                       
-                                                                                                                           [AProgresso Geral:  60%|[32m██████    [0m| 3/5 [18:14<00:10,  5.39s/it, Processando: logs_pasoe]
-    Raiz (logs_pasoe):  38%|[36m███▊      [0m| 3/8 [04:13<06:50, 82.06s/it, Baixando Histórico: dts_c652ui_p.agent.2026-03-26.log][A
-    Raiz (logs_pasoe):  50%|[36m█████     [0m| 4/8 [04:13<03:18, 49.74s/it, Baixando Histórico: dts_c652ui_p.agent.2026-03-26.log][A
-    Raiz (logs_pasoe):  50%|[36m█████     [0m| 4/8 [04:13<03:18, 49.74s/it, Baixando Histórico: dts_c652ui_p.agent.2026-04-09.log][A                                                                                       
-                                                                                                                           [AProgresso Geral:  60%|[32m██████    [0m| 3/5 [18:14<00:10,  5.39s/it, Processando: logs_pasoe]
-    Raiz (logs_pasoe):  50%|[36m█████     [0m| 4/8 [04:13<03:18, 49.74s/it, Baixando Histórico: dts_c652ui_p.agent.2026-04-09.log][A
-    Raiz (logs_pasoe):  62%|[36m██████▎   [0m| 5/8 [04:13<01:35, 31.87s/it, Baixando Histórico: dts_c652ui_p.agent.2026-04-09.log][A
-    Raiz (logs_pasoe):  62%|[36m██████▎   [0m| 5/8 [04:13<01:35, 31.87s/it, Atualizando: dts_c652ui_p.agent.2026-04-14_ATIVO.log] [A
-    Raiz (logs_pasoe):  75%|[36m███████▌  [0m| 6/8 [05:32<01:35, 47.90s/it, Atualizando: dts_c652ui_p.agent.2026-04-14_ATIVO.log][A
-    Raiz (logs_pasoe):  75%|[36m███████▌  [0m| 6/8 [05:32<01:35, 47.90s/it, Atualizando: rpw_c652ui-log_p.agent.2026-04-14_ATIVO.log][A
-    Raiz (logs_pasoe):  88%|[36m████████▊ [0m| 7/8 [05:39<00:34, 34.52s/it, Atualizando: rpw_c652ui-log_p.agent.2026-04-14_ATIVO.log][A
-    Raiz (logs_pasoe):  88%|[36m████████▊ [0m| 7/8 [05:39<00:34, 34.52s/it, Atualizando: rpw_c652ui-rpw_p.agent.2026-04-14_ATIVO.log][A
-    Raiz (logs_pasoe): 100%|[36m██████████[0m| 8/8 [05:40<00:00, 23.78s/it, Atualizando: rpw_c652ui-rpw_p.agent.2026-04-14_ATIVO.log][A
-                                                                                                                              [AProgresso Geral:  80%|[32m████████  [0m| 4/5 [19:47<07:43, 463.90s/it, Processando: logs_pasoe]Progresso Geral:  80%|[32m████████  [0m| 4/5 [19:47<07:43, 463.90s/it, Processando: tomcat_datasul]      [ERRO] Falha ao baixar dts_c652ui-atr_p.agent.2026-03-26.log: 403 Client Error: Forbidden for url: https://unimedencosta183931.datasul.cloudtotvs.com.br:8777/logs/logs_pasoe/dts_c652ui-atr_p.agent.2026-03-26.log
+    Raiz (logs_pasoe):  12%|[36m█▎        [0m| 1/8 [00:00<00:01,  5.78it/s, Baixando Histórico: dts_c652ui-atr_p.agent.2026-03-26.log][A
+    Raiz (logs_pasoe):  12%|[36m█▎        [0m| 1/8 [00:00<00:01,  5.78it/s, Atualizando: dts_c652ui-atr_p.agent.2026-04-14_ATIVO.log] [A
+    Raiz (logs_pasoe):  25%|[36m██▌       [0m| 2/8 [00:42<02:31, 25.25s/it, Atualizando: dts_c652ui-atr_p.agent.2026-04-14_ATIVO.log][A
+    Raiz (logs_pasoe):  25%|[36m██▌       [0m| 2/8 [00:42<02:31, 25.25s/it, Atualizando: dts_c652ui-fnd_p.agent.2026-04-14_ATIVO.log][A
+    Raiz (logs_pasoe):  38%|[36m███▊      [0m| 3/8 [00:45<01:14, 15.00s/it, Atualizando: dts_c652ui-fnd_p.agent.2026-04-14_ATIVO.log][A
+    Raiz (logs_pasoe):  38%|[36m███▊      [0m| 3/8 [00:45<01:14, 15.00s/it, Baixando Histórico: dts_c652ui_p.agent.2026-03-26.log]   [A                                                                                       
+                                                                                                                           [AProgresso Geral:  60%|[32m██████    [0m| 3/5 [04:32<00:17,  8.80s/it, Processando: logs_pasoe]
+    Raiz (logs_pasoe):  38%|[36m███▊      [0m| 3/8 [00:46<01:14, 15.00s/it, Baixando Histórico: dts_c652ui_p.agent.2026-03-26.log][A
+    Raiz (logs_pasoe):  50%|[36m█████     [0m| 4/8 [00:46<00:36,  9.17s/it, Baixando Histórico: dts_c652ui_p.agent.2026-03-26.log][A
+    Raiz (logs_pasoe):  50%|[36m█████     [0m| 4/8 [00:46<00:36,  9.17s/it, Baixando Histórico: dts_c652ui_p.agent.2026-04-09.log][A                                                                                       
+                                                                                                                           [AProgresso Geral:  60%|[32m██████    [0m| 3/5 [04:32<00:17,  8.80s/it, Processando: logs_pasoe]
+    Raiz (logs_pasoe):  50%|[36m█████     [0m| 4/8 [00:46<00:36,  9.17s/it, Baixando Histórico: dts_c652ui_p.agent.2026-04-09.log][A
+    Raiz (logs_pasoe):  62%|[36m██████▎   [0m| 5/8 [00:46<00:17,  5.92s/it, Baixando Histórico: dts_c652ui_p.agent.2026-04-09.log][A
+    Raiz (logs_pasoe):  62%|[36m██████▎   [0m| 5/8 [00:46<00:17,  5.92s/it, Atualizando: dts_c652ui_p.agent.2026-04-14_ATIVO.log] [A
+    Raiz (logs_pasoe):  75%|[36m███████▌  [0m| 6/8 [01:09<00:23, 11.88s/it, Atualizando: dts_c652ui_p.agent.2026-04-14_ATIVO.log][A
+    Raiz (logs_pasoe):  75%|[36m███████▌  [0m| 6/8 [01:09<00:23, 11.88s/it, Atualizando: rpw_c652ui-log_p.agent.2026-04-14_ATIVO.log][A
+    Raiz (logs_pasoe):  88%|[36m████████▊ [0m| 7/8 [01:10<00:08,  8.14s/it, Atualizando: rpw_c652ui-log_p.agent.2026-04-14_ATIVO.log][A
+    Raiz (logs_pasoe):  88%|[36m████████▊ [0m| 7/8 [01:10<00:08,  8.14s/it, Atualizando: rpw_c652ui-rpw_p.agent.2026-04-14_ATIVO.log][A
+    Raiz (logs_pasoe): 100%|[36m██████████[0m| 8/8 [01:10<00:00,  5.60s/it, Atualizando: rpw_c652ui-rpw_p.agent.2026-04-14_ATIVO.log][A
+                                                                                                                              [AProgresso Geral:  80%|[32m████████  [0m| 4/5 [05:01<01:50, 110.67s/it, Processando: logs_pasoe]Progresso Geral:  80%|[32m████████  [0m| 4/5 [05:01<01:50, 110.67s/it, Processando: tomcat_datasul]      [ERRO] Falha ao baixar dts_c652ui-atr_p.agent.2026-03-26.log: 403 Client Error: Forbidden for url: https://unimedencosta183931.datasul.cloudtotvs.com.br:8777/logs/logs_pasoe/dts_c652ui-atr_p.agent.2026-03-26.log
       [ERRO] Falha ao baixar dts_c652ui_p.agent.2026-03-26.log: 403 Client Error: Forbidden for url: https://unimedencosta183931.datasul.cloudtotvs.com.br:8777/logs/logs_pasoe/dts_c652ui_p.agent.2026-03-26.log
       [ERRO] Falha ao baixar dts_c652ui_p.agent.2026-04-09.log: 403 Client Error: Forbidden for url: https://unimedencosta183931.datasul.cloudtotvs.com.br:8777/logs/logs_pasoe/dts_c652ui_p.agent.2026-04-09.log
 
     Raiz (tomcat_datasul):   0%|[36m          [0m| 0/25 [00:00<?, ?it/s][A
     Raiz (tomcat_datasul):   0%|[36m          [0m| 0/25 [00:00<?, ?it/s, Atualizando: catalina.2026-04-14_ATIVO.log][A
-    Raiz (tomcat_datasul):  28%|[36m██▊       [0m| 7/25 [00:11<00:30,  1.68s/it, Atualizando: catalina.2026-04-14_ATIVO.log][A
-    Raiz (tomcat_datasul):  32%|[36m███▏      [0m| 8/25 [00:12<00:24,  1.45s/it, Atualizando: catalina.2026-04-14_ATIVO.log][A
-    Raiz (tomcat_datasul):  52%|[36m█████▏    [0m| 13/25 [00:12<00:08,  1.50it/s, Atualizando: catalina.2026-04-14_ATIVO.log][A
-    Raiz (tomcat_datasul):  52%|[36m█████▏    [0m| 13/25 [00:12<00:08,  1.50it/s, Atualizando: localhost.2026-04-14_ATIVO.log][A
-    Raiz (tomcat_datasul):  52%|[36m█████▏    [0m| 13/25 [00:23<00:08,  1.50it/s, Atualizando: localhost.2026-04-14_ATIVO.log][A
+    Raiz (tomcat_datasul):  28%|[36m██▊       [0m| 7/25 [00:19<00:50,  2.82s/it, Atualizando: catalina.2026-04-14_ATIVO.log][A
+    Raiz (tomcat_datasul):  32%|[36m███▏      [0m| 8/25 [00:19<00:40,  2.37s/it, Atualizando: catalina.2026-04-14_ATIVO.log][A
+    Raiz (tomcat_datasul):  56%|[36m█████▌    [0m| 14/25 [00:20<00:10,  1.02it/s, Atualizando: catalina.2026-04-14_ATIVO.log][A
+    Raiz (tomcat_datasul):  56%|[36m█████▌    [0m| 14/25 [00:20<00:10,  1.02it/s, Atualizando: localhost.2026-04-14_ATIVO.log][A
+    Raiz (tomcat_datasul):  56%|[36m█████▌    [0m| 14/25 [00:38<00:10,  1.02it/s, Atualizando: localhost.2026-04-14_ATIVO.log][A
+    Raiz (tomcat_datasul):  68%|[36m██████▊   [0m| 17/25 [21:18<16:43, 125.41s/it, Atualizando: localhost.2026-04-14_ATIVO.log][A
+    Raiz (tomcat_datasul):  72%|[36m███████▏  [0m| 18/25 [21:19<12:49, 109.93s/it, Atualizando: localhost.2026-04-14_ATIVO.log][A
+    Raiz (tomcat_datasul):  80%|[36m████████  [0m| 20/25 [21:19<06:46, 81.26s/it, Atualizando: localhost.2026-04-14_ATIVO.log] [A
+    Raiz (tomcat_datasul):  80%|[36m████████  [0m| 20/25 [21:19<06:46, 81.26s/it, Atualizando: localhost_access_log.2026-04-14_ATIVO.txt][A
+    Raiz (tomcat_datasul):  80%|[36m████████  [0m| 20/25 [21:39<06:46, 81.26s/it, Atualizando: localhost_access_log.2026-04-14_ATIVO.txt][A
+    Raiz (tomcat_datasul):  96%|[36m█████████▌[0m| 24/25 [27:50<01:28, 88.25s/it, Atualizando: localhost_access_log.2026-04-14_ATIVO.txt][A
+    Raiz (tomcat_datasul): 100%|[36m██████████[0m| 25/25 [27:50<00:00, 76.57s/it, Atualizando: localhost_access_log.2026-04-14_ATIVO.txt][A
+                                                                                                                                  [AProgresso Geral: 100%|[32m██████████[0m| 5/5 [32:52<00:00, 673.32s/it, Processando: tomcat_datasul]Progresso Geral: 100%|[32m██████████[0m| 5/5 [32:52<00:00, 394.54s/it, Processando: tomcat_datasul]
+
+==================================================
+RELATÓRIO DE COLETA DE LOGS
+==================================================
+Início: 14/04/2026 13:10:02 | Fim: 14/04/2026 13:42:55
+Tempo total: 0:32:52.993534
+
+Arquivos Históricos baixados novos:  10
+Snapshots (Ativos) atualizados:      21
+Snapshots antigos removidos:         0
+==================================================
+
