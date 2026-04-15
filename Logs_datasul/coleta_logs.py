@@ -1,20 +1,18 @@
 """
 =============================================================================================
 Projeto: Monitoramento de Logs TOTVS Datasul
-Módulo:  Motor de Coleta e Retenção (Backend)
+Módulo:  Motor de Coleta (Backend - Rede)
 Arquivo: coleta_logs.py
 
 Descrição: 
-Script de automação (Web Scraping) que acessa o servidor de logs do Datasul, faz o download 
-dos históricos organizando-os em pastas por data (YYYY-MM-DD), atualiza os logs ativos na 
-raiz do serviço e expurga snapshots órfãos para poupar espaço em disco.
-Inclui auto-mapeamento de rede interno para rodar em Sessão 0, correção de Encoding UTF-8,
-gravação reversa de relatórios e rotina de compactação ZIP para logs frios.
+Script focado EXCLUSIVAMENTE em web scraping e download. Acessa múltiplos servidores
+(Produção, Homologação, Protótipo), baixa históricos novos e atualiza os logs ativos.
+A compactação foi movida para outro robô. Zero caracteres especiais no terminal.
 
 Autor: Marcio Jose Gomes Bastos Filho
 Data de Criação: 25/03/2026
 Última Atualização: 15/04/2026
-Versão: 3.0
+Versão: 4.1
 =============================================================================================
 """
 
@@ -28,22 +26,23 @@ import urllib3
 from tqdm import tqdm
 import subprocess
 import sys 
-import zipfile # Trocado GZIP por ZIPFILE
 
-# Força a saída de texto a usar UTF-8
+# Forca a saida de texto a usar UTF-8
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
 if hasattr(sys.stderr, 'reconfigure'):
     sys.stderr.reconfigure(encoding='utf-8')
 
-# Configurações Principais
-MAIN_URL = "https://unimedencosta183931.datasul.cloudtotvs.com.br:8777/logs/"
-
-# Variáveis de Rede e Retenção
+# Configuracoes Principais e Mapeamento de Rede
 UNIDADE_REDE = "L:"
 CAMINHO_UNC = r"\\192.168.0.247\Logs_Datasul"
-DIRETORIO_BASE_LOCAL = rf"{UNIDADE_REDE}\Producao"
-DIAS_RETENCAO_COMPACTACAO = 10
+
+# Dicionario de Ambientes (Nome do Ambiente : URL Raiz)
+AMBIENTES = {
+    "Producao": "https://unimedencosta183931.datasul.cloudtotvs.com.br:8777/logs/",
+    "Homologacao": "https://unimedencosta184349.datasul.cloudtotvs.com.br:8777/logs/",
+    "Prototipo": "https://unimedencosta184282.datasul.cloudtotvs.com.br:8777/logs/"
+}
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -52,7 +51,6 @@ def obter_conteudo_pagina(url):
         response = requests.get(url, verify=False, timeout=60)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
-        
         diretorios, arquivos = [], []
         for link in soup.find_all('a'):
             href = link.get('href')
@@ -75,7 +73,6 @@ def classificar_arquivo(nome_arquivo):
     hoje = datetime.now()
     str_hoje_hifen = hoje.strftime("%Y-%m-%d")
     str_hoje_junto = hoje.strftime("%Y%m%d")
-    
     if nome_arquivo.endswith('.gz') or nome_arquivo.endswith('.zip'): return 'HISTORICO'
     if str_hoje_hifen in nome_arquivo or str_hoje_junto in nome_arquivo: return 'ATIVO'
     ativos_conhecidos = ['server.log', 'boot.log', 'catalina.out', 'sib.log', 'monitortissnet.log']
@@ -83,60 +80,49 @@ def classificar_arquivo(nome_arquivo):
     if re.search(r'20\d{2}[-_]?\d{2}[-_]?\d{2}', nome_arquivo): return 'HISTORICO'
     return 'ATIVO'
 
-def main():
-    tempo_inicio = datetime.now()
-    hora_inicio_str = tempo_inicio.strftime("%d/%m/%Y %H:%M:%S")
+def processar_ambiente(nome_ambiente, url_ambiente):
+    """Processa a coleta de logs para um unico ambiente"""
+    pasta_raiz_ambiente = rf"{UNIDADE_REDE}\{nome_ambiente}"
+    os.makedirs(pasta_raiz_ambiente, exist_ok=True)
     
-    # Auto-mapeamento de rede
-    if not os.path.exists(f"{UNIDADE_REDE}\\"):
-        try:
-            subprocess.run(["net", "use", UNIDADE_REDE, CAMINHO_UNC], check=True, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        except subprocess.CalledProcessError:
-            pass 
+    qtd_historicos, qtd_snapshots, qtd_limpos = 0, 0, 0
     
-    qtd_historicos = 0
-    qtd_snapshots = 0
-    qtd_limpos = 0
-    qtd_compactados = 0
-    bytes_poupados = 0
+    print(f"\n--- Iniciando coleta no ambiente: {nome_ambiente} ---")
+    servicos, _ = obter_conteudo_pagina(url_ambiente)
     
-    os.makedirs(DIRETORIO_BASE_LOCAL, exist_ok=True)
+    if not servicos:
+        print(f"[ERRO] Nenhum servico encontrado no ambiente {nome_ambiente}. Verifique a URL ou a conexao.")
+        return 0, 0, 0
 
-    print(f"\n[INICIO] Coleta iniciada em: {hora_inicio_str} ...")
-    servicos, _ = obter_conteudo_pagina(MAIN_URL)
-    
-    pbar_geral = tqdm(servicos, desc="Progresso Geral", position=0, leave=True, colour='green')
+    pbar_geral = tqdm(servicos, desc=f"Progresso {nome_ambiente}", position=0, leave=True, colour='green')
     
     for servico in pbar_geral:
         nome_servico = servico.replace('/', '')
         pbar_geral.set_postfix_str(f"Processando: {nome_servico}")
-        
-        url_servico = urljoin(MAIN_URL, servico)
-        pasta_destino_servico = os.path.join(DIRETORIO_BASE_LOCAL, nome_servico)
+        url_servico = urljoin(url_ambiente, servico)
+        pasta_destino_servico = os.path.join(pasta_raiz_ambiente, nome_servico)
         os.makedirs(pasta_destino_servico, exist_ok=True)
             
         while True:
             subdiretorios, arquivos_soltos = obter_conteudo_pagina(url_servico)
-            
             pastas_horario_inicio = [d for d in subdiretorios if re.match(r'\d{4}-\d{2}-\d{2}_\d{2}_\d{2}/', d)]
             arquivos_hist_inicio = [a for a in arquivos_soltos if classificar_arquivo(a) == 'HISTORICO']
             ativos_da_rodada = []
             
             for pasta in pastas_horario_inicio:
                 data_pasta_pasoe = pasta[:10] 
+                zip_do_dia = os.path.join(pasta_destino_servico, f"{data_pasta_pasoe}.zip")
+                if os.path.exists(zip_do_dia): continue
+                
                 pasta_destino_consolidada = os.path.join(pasta_destino_servico, data_pasta_pasoe, pasta.replace('/', ''))
                 os.makedirs(pasta_destino_consolidada, exist_ok=True)
-                
                 _, arquivos_da_pasta = obter_conteudo_pagina(urljoin(url_servico, pasta))
                 
                 if arquivos_da_pasta:
                     pbar_pasta = tqdm(arquivos_da_pasta, desc=f"    {pasta}", position=1, leave=False, colour='blue')
                     for arq in pbar_pasta:
                         caminho_local = os.path.join(pasta_destino_consolidada, arq)
-                        
-                        # Modificação para checar se o arquivo já não foi compactado em ZIP antes
-                        caminho_local_zip = caminho_local + '.zip'
-                        if not os.path.exists(caminho_local) and not os.path.exists(caminho_local_zip): 
+                        if not os.path.exists(caminho_local) and not os.path.exists(caminho_local + '.gz') and not os.path.exists(caminho_local + '.zip'): 
                             pbar_pasta.set_postfix_str(f"Baixando: {arq}")
                             try:
                                 with requests.get(urljoin(url_servico, pasta + arq), stream=True, verify=False, timeout=60) as r:
@@ -152,13 +138,11 @@ def main():
                 for arquivo in pbar_raiz:
                     status = classificar_arquivo(arquivo)
                     url_arquivo = urljoin(url_servico, arquivo)
-                    
                     if status == 'ATIVO':
                         nome_base, extensao = os.path.splitext(arquivo)
                         nome_final = f"{nome_base}_ATIVO{extensao}"
                         caminho_local = os.path.join(pasta_destino_servico, nome_final)
                         ativos_da_rodada.append(nome_final)
-                        
                         pbar_raiz.set_postfix_str(f"Atualizando: {nome_final}")
                         try:
                             with requests.get(url_arquivo, stream=True, verify=False, timeout=60) as r:
@@ -166,110 +150,84 @@ def main():
                                 with open(caminho_local, 'wb') as f:
                                     for chunk in r.iter_content(8192): f.write(chunk)
                             qtd_snapshots += 1
-                        except Exception as e:
-                            tqdm.write(f"      [ERRO] Falha ao baixar {arquivo}: {e}")
-                            
+                        except Exception: pass
                     elif status == 'HISTORICO':
                         pasta_data = extrair_data(arquivo)
+                        if os.path.exists(os.path.join(pasta_destino_servico, f"{pasta_data}.zip")): continue
                         pasta_destino_final = os.path.join(pasta_destino_servico, pasta_data)
-                        
                         os.makedirs(pasta_destino_final, exist_ok=True)
-                            
                         caminho_local = os.path.join(pasta_destino_final, arquivo)
-                        caminho_local_zip = caminho_local + '.zip'
-                        
-                        if not os.path.exists(caminho_local) and not os.path.exists(caminho_local_zip):
-                            pbar_raiz.set_postfix_str(f"Baixando Histórico: {arquivo}")
+                        if not os.path.exists(caminho_local) and not os.path.exists(caminho_local + '.gz') and not os.path.exists(caminho_local + '.zip'):
+                            pbar_raiz.set_postfix_str(f"Baixando Historico: {arquivo}")
                             try:
                                 with requests.get(url_arquivo, stream=True, verify=False, timeout=60) as r:
                                     r.raise_for_status()
                                     with open(caminho_local, 'wb') as f:
                                         for chunk in r.iter_content(8192): f.write(chunk)
                                 qtd_historicos += 1
-                            except Exception as e:
-                                tqdm.write(f"      [ERRO] Falha ao baixar {arquivo}: {e}")
+                            except Exception: pass
 
             subdiretorios_fim, arquivos_soltos_fim = obter_conteudo_pagina(url_servico)
-            pastas_horario_fim = [d for d in subdiretorios_fim if re.match(r'\d{4}-\d{2}-\d{2}_\d{2}_\d{2}/', d)]
-            arquivos_hist_fim = [a for a in arquivos_soltos_fim if classificar_arquivo(a) == 'HISTORICO']
-            
-            if len(pastas_horario_fim) > len(pastas_horario_inicio) or len(arquivos_hist_fim) > len(arquivos_hist_inicio):
-                tqdm.write("      [ATENCAO] Rotação detectada no servidor durante o download! Refazendo serviço...")
+            if len([d for d in subdiretorios_fim if re.match(r'\d{4}-\d{2}-\d{2}_\d{2}_\d{2}/', d)]) > len(pastas_horario_inicio):
+                tqdm.write("      [ATENCAO] Rotacao detectada! Refazendo servico...")
                 continue
-            else:
-                break 
+            else: break 
 
-        # 3. FAXINA E COMPACTAÇÃO (AGORA ZIP)
-        for raiz, dirs, arquivos_locais in os.walk(pasta_destino_servico):
-            for arquivo_local in arquivos_locais:
-                caminho_completo = os.path.join(raiz, arquivo_local)
+        for item in os.listdir(pasta_destino_servico):
+            caminho_completo = os.path.join(pasta_destino_servico, item)
+            if os.path.isfile(caminho_completo) and "_ATIVO" in item and item not in ativos_da_rodada:
+                try:
+                    os.remove(caminho_completo)
+                    tqdm.write(f"      [LIMPEZA] Removido ativo orfao -> {item}")
+                    qtd_limpos += 1
+                except Exception: pass
                 
-                # Expurgo de ativos órfãos
-                if "_ATIVO" in arquivo_local and arquivo_local not in ativos_da_rodada:
-                    try:
-                        os.remove(caminho_completo)
-                        tqdm.write(f"      [LIMPEZA] Removido snapshot antigo -> {arquivo_local}")
-                        qtd_limpos += 1
-                    except Exception: pass
-                    continue
-                
-                # Compactação de Logs Frios (> 10 dias) para ZIP
-                if not arquivo_local.endswith('.gz') and not arquivo_local.endswith('.zip') and "_ATIVO" not in arquivo_local:
-                    data_str = extrair_data(arquivo_local)
-                    try:
-                        data_arquivo = datetime.strptime(data_str, "%Y-%m-%d")
-                        idade_dias = (tempo_inicio - data_arquivo).days
-                        
-                        if idade_dias > DIAS_RETENCAO_COMPACTACAO:
-                            caminho_zip = caminho_completo + '.zip'
-                            tamanho_orig = os.path.getsize(caminho_completo)
-                            
-                            # Cria o arquivo ZIP usando compressão máxima (DEFLATED)
-                            with zipfile.ZipFile(caminho_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
-                                # Adiciona o arquivo ao ZIP usando apenas o nome dele (sem a estrutura de pastas do C:)
-                                zipf.write(caminho_completo, arcname=arquivo_local)
-                                
-                            tamanho_novo = os.path.getsize(caminho_zip)
-                            os.remove(caminho_completo)
-                            
-                            qtd_compactados += 1
-                            bytes_poupados += (tamanho_orig - tamanho_novo)
-                            tqdm.write(f"      [COMPACTACAO] {arquivo_local} compactado para ZIP (Idade: {idade_dias} dias).")
-                    except Exception as e:
-                        pass
+    return qtd_historicos, qtd_snapshots, qtd_limpos
+
+def main():
+    tempo_inicio = datetime.now()
+    hora_inicio_str = tempo_inicio.strftime("%d/%m/%Y %H:%M:%S")
+    
+    if not os.path.exists(f"{UNIDADE_REDE}\\"):
+        try:
+            subprocess.run(["net", "use", UNIDADE_REDE, CAMINHO_UNC], check=True, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except subprocess.CalledProcessError: pass 
+    
+    print(f"\n[INICIO] Coleta de Rede Multi-Ambiente iniciada em: {hora_inicio_str}")
+    
+    total_historicos = 0
+    total_snapshots = 0
+    total_limpos = 0
+    
+    # Processa todos os ambientes sequencialmente
+    for nome_ambiente, url_ambiente in AMBIENTES.items():
+        hist, snap, limp = processar_ambiente(nome_ambiente, url_ambiente)
+        total_historicos += hist
+        total_snapshots += snap
+        total_limpos += limp
 
     tempo_fim = datetime.now()
-    duracao = tempo_fim - tempo_inicio
-    mb_poupados = bytes_poupados / (1024 * 1024)
-    
     relatorio = f"""
 ==================================================
-RELATÓRIO DE COLETA DE LOGS
+RELATORIO DE COLETA (DOWNLOADER MULTI-AMBIENTE)
 ==================================================
-Início: {hora_inicio_str} | Fim: {tempo_fim.strftime("%d/%m/%Y %H:%M:%S")}
-Tempo total: {duracao}
+Inicio: {hora_inicio_str} | Fim: {tempo_fim.strftime("%d/%m/%Y %H:%M:%S")}
+Tempo total: {tempo_fim - tempo_inicio}
 
-Arquivos Históricos baixados:        {qtd_historicos}
-Snapshots (Ativos) atualizados:      {qtd_snapshots}
-Snapshots antigos removidos:         {qtd_limpos}
-Logs antigos compactados (>10d):     {qtd_compactados}
-Economia de Disco gerada:            {mb_poupados:.2f} MB
+Arquivos Historicos baixados:        {total_historicos}
+Snapshots (Ativos) atualizados:      {total_snapshots}
+Snapshots orfaos removidos:          {total_limpos}
 ==================================================
 """
     print(relatorio)
     
-    arquivo_log_relatorio = os.path.join(DIRETORIO_BASE_LOCAL, "relatorio_coleta.txt")
-    conteudo_antigo = ""
-    
-    if os.path.exists(arquivo_log_relatorio):
-        try:
-            with open(arquivo_log_relatorio, "r", encoding="utf-8") as f:
-                conteudo_antigo = f.read()
-        except Exception: pass
-        
+    # Salva um unico relatorio consolidado na raiz do L:
     try:
-        with open(arquivo_log_relatorio, "w", encoding="utf-8") as f:
-            f.write(relatorio + "\n" + conteudo_antigo)
+        arquivo_log_relatorio = os.path.join(f"{UNIDADE_REDE}\\", "relatorio_coleta_geral.txt")
+        conteudo_antigo = ""
+        if os.path.exists(arquivo_log_relatorio):
+            with open(arquivo_log_relatorio, "r", encoding="utf-8") as f: conteudo_antigo = f.read()
+        with open(arquivo_log_relatorio, "w", encoding="utf-8") as f: f.write(relatorio + "\n" + conteudo_antigo)
     except Exception: pass
 
 if __name__ == "__main__":
