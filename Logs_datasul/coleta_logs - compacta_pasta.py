@@ -7,14 +7,14 @@ Arquivo: coleta_logs.py
 Descrição: 
 Script de automação (Web Scraping) que acessa o servidor de logs do Datasul, faz o download 
 dos históricos organizando-os em pastas por data (YYYY-MM-DD), atualiza os logs ativos na 
-raiz do serviço e expurga snapshots órfãos para poupar espaço em disco.
-Inclui auto-mapeamento de rede interno para rodar em Sessão 0, correção de Encoding UTF-8,
-gravação reversa de relatórios e rotina de compactação ZIP para logs frios.
+raiz do serviço e expurga snapshots órfãos.
+Inclui auto-mapeamento de rede, correção de Encoding UTF-8, gravação reversa de relatórios,
+compactação diária unificada (1 ZIP por dia) e validação de arquivos legados já compactados.
 
 Autor: Marcio Jose Gomes Bastos Filho
 Data de Criação: 25/03/2026
 Última Atualização: 15/04/2026
-Versão: 3.0
+Versão: 3.2
 =============================================================================================
 """
 
@@ -28,7 +28,8 @@ import urllib3
 from tqdm import tqdm
 import subprocess
 import sys 
-import zipfile # Trocado GZIP por ZIPFILE
+import zipfile
+import shutil
 
 # Força a saída de texto a usar UTF-8
 if hasattr(sys.stdout, 'reconfigure'):
@@ -97,7 +98,7 @@ def main():
     qtd_historicos = 0
     qtd_snapshots = 0
     qtd_limpos = 0
-    qtd_compactados = 0
+    qtd_pastas_compactadas = 0
     bytes_poupados = 0
     
     os.makedirs(DIRETORIO_BASE_LOCAL, exist_ok=True)
@@ -122,8 +123,15 @@ def main():
             arquivos_hist_inicio = [a for a in arquivos_soltos if classificar_arquivo(a) == 'HISTORICO']
             ativos_da_rodada = []
             
+            # 1. TRATA AS PASTAS CONSOLIDADAS (Pasoe)
             for pasta in pastas_horario_inicio:
                 data_pasta_pasoe = pasta[:10] 
+                zip_do_dia = os.path.join(pasta_destino_servico, f"{data_pasta_pasoe}.zip")
+                
+                # Pula a pasta inteira se o dia já foi consolidado e zipado
+                if os.path.exists(zip_do_dia):
+                    continue
+                
                 pasta_destino_consolidada = os.path.join(pasta_destino_servico, data_pasta_pasoe, pasta.replace('/', ''))
                 os.makedirs(pasta_destino_consolidada, exist_ok=True)
                 
@@ -133,10 +141,11 @@ def main():
                     pbar_pasta = tqdm(arquivos_da_pasta, desc=f"    {pasta}", position=1, leave=False, colour='blue')
                     for arq in pbar_pasta:
                         caminho_local = os.path.join(pasta_destino_consolidada, arq)
-                        
-                        # Modificação para checar se o arquivo já não foi compactado em ZIP antes
+                        caminho_local_gz = caminho_local + '.gz'
                         caminho_local_zip = caminho_local + '.zip'
-                        if not os.path.exists(caminho_local) and not os.path.exists(caminho_local_zip): 
+                        
+                        # Verifica todas as formas possíveis de o arquivo já existir
+                        if not os.path.exists(caminho_local) and not os.path.exists(caminho_local_gz) and not os.path.exists(caminho_local_zip): 
                             pbar_pasta.set_postfix_str(f"Baixando: {arq}")
                             try:
                                 with requests.get(urljoin(url_servico, pasta + arq), stream=True, verify=False, timeout=60) as r:
@@ -147,6 +156,7 @@ def main():
                             except Exception as e:
                                 tqdm.write(f"      [ERRO] Falha ao baixar {arq}: {e}")
             
+            # 2. TRATA OS ARQUIVOS SOLTOS (Ativos e Históricos)
             if arquivos_soltos:
                 pbar_raiz = tqdm(arquivos_soltos, desc=f"    Raiz ({nome_servico})", position=1, leave=False, colour='cyan')
                 for arquivo in pbar_raiz:
@@ -171,14 +181,21 @@ def main():
                             
                     elif status == 'HISTORICO':
                         pasta_data = extrair_data(arquivo)
-                        pasta_destino_final = os.path.join(pasta_destino_servico, pasta_data)
+                        zip_do_dia = os.path.join(pasta_destino_servico, f"{pasta_data}.zip")
                         
+                        # Pula a coleta se o dia já foi consolidado em ZIP
+                        if os.path.exists(zip_do_dia):
+                            continue
+                            
+                        pasta_destino_final = os.path.join(pasta_destino_servico, pasta_data)
                         os.makedirs(pasta_destino_final, exist_ok=True)
                             
                         caminho_local = os.path.join(pasta_destino_final, arquivo)
+                        caminho_local_gz = caminho_local + '.gz'
                         caminho_local_zip = caminho_local + '.zip'
                         
-                        if not os.path.exists(caminho_local) and not os.path.exists(caminho_local_zip):
+                        # Verifica todas as formas possíveis de o arquivo já existir
+                        if not os.path.exists(caminho_local) and not os.path.exists(caminho_local_gz) and not os.path.exists(caminho_local_zip):
                             pbar_raiz.set_postfix_str(f"Baixando Histórico: {arquivo}")
                             try:
                                 with requests.get(url_arquivo, stream=True, verify=False, timeout=60) as r:
@@ -199,44 +216,51 @@ def main():
             else:
                 break 
 
-        # 3. FAXINA E COMPACTAÇÃO (AGORA ZIP)
-        for raiz, dirs, arquivos_locais in os.walk(pasta_destino_servico):
-            for arquivo_local in arquivos_locais:
-                caminho_completo = os.path.join(raiz, arquivo_local)
-                
-                # Expurgo de ativos órfãos
-                if "_ATIVO" in arquivo_local and arquivo_local not in ativos_da_rodada:
+        # 3. FAXINA DE ATIVOS ÓRFÃOS E COMPACTAÇÃO DIÁRIA DE PASTAS
+        for item in os.listdir(pasta_destino_servico):
+            caminho_completo = os.path.join(pasta_destino_servico, item)
+            
+            # Limpeza de Ativos Órfãos
+            if os.path.isfile(caminho_completo) and "_ATIVO" in item:
+                if item not in ativos_da_rodada:
                     try:
                         os.remove(caminho_completo)
-                        tqdm.write(f"      [LIMPEZA] Removido snapshot antigo -> {arquivo_local}")
+                        tqdm.write(f"      [LIMPEZA] Removido snapshot antigo -> {item}")
                         qtd_limpos += 1
                     except Exception: pass
-                    continue
-                
-                # Compactação de Logs Frios (> 10 dias) para ZIP
-                if not arquivo_local.endswith('.gz') and not arquivo_local.endswith('.zip') and "_ATIVO" not in arquivo_local:
-                    data_str = extrair_data(arquivo_local)
-                    try:
-                        data_arquivo = datetime.strptime(data_str, "%Y-%m-%d")
-                        idade_dias = (tempo_inicio - data_arquivo).days
+                continue
+            
+            # Compactação de Pastas Diárias (> 10 dias)
+            if os.path.isdir(caminho_completo) and re.match(r'20\d{2}-\d{2}-\d{2}', item):
+                try:
+                    data_pasta = datetime.strptime(item, "%Y-%m-%d")
+                    idade_dias = (tempo_inicio - data_pasta).days
+                    
+                    if idade_dias > DIAS_RETENCAO_COMPACTACAO:
+                        caminho_zip = caminho_completo + '.zip'
                         
-                        if idade_dias > DIAS_RETENCAO_COMPACTACAO:
-                            caminho_zip = caminho_completo + '.zip'
-                            tamanho_orig = os.path.getsize(caminho_completo)
-                            
-                            # Cria o arquivo ZIP usando compressão máxima (DEFLATED)
+                        tamanho_orig = sum(os.path.getsize(os.path.join(dirpath, filename)) 
+                                           for dirpath, _, filenames in os.walk(caminho_completo) 
+                                           for filename in filenames)
+                        
+                        if tamanho_orig > 0:
                             with zipfile.ZipFile(caminho_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
-                                # Adiciona o arquivo ao ZIP usando apenas o nome dele (sem a estrutura de pastas do C:)
-                                zipf.write(caminho_completo, arcname=arquivo_local)
-                                
+                                for root_dir, _, files in os.walk(caminho_completo):
+                                    for file in files:
+                                        file_path = os.path.join(root_dir, file)
+                                        arcname = os.path.relpath(file_path, pasta_destino_servico)
+                                        zipf.write(file_path, arcname=arcname)
+                                        
                             tamanho_novo = os.path.getsize(caminho_zip)
-                            os.remove(caminho_completo)
+                            shutil.rmtree(caminho_completo) 
                             
-                            qtd_compactados += 1
+                            qtd_pastas_compactadas += 1
                             bytes_poupados += (tamanho_orig - tamanho_novo)
-                            tqdm.write(f"      [COMPACTACAO] {arquivo_local} compactado para ZIP (Idade: {idade_dias} dias).")
-                    except Exception as e:
-                        pass
+                            tqdm.write(f"      [COMPACTACAO] Pasta do dia {item} unificada em ZIP (Idade: {idade_dias} dias).")
+                        else:
+                            shutil.rmtree(caminho_completo) 
+                except Exception as e:
+                    pass
 
     tempo_fim = datetime.now()
     duracao = tempo_fim - tempo_inicio
@@ -252,7 +276,7 @@ Tempo total: {duracao}
 Arquivos Históricos baixados:        {qtd_historicos}
 Snapshots (Ativos) atualizados:      {qtd_snapshots}
 Snapshots antigos removidos:         {qtd_limpos}
-Logs antigos compactados (>10d):     {qtd_compactados}
+Pastas diárias unificadas (>10d):    {qtd_pastas_compactadas}
 Economia de Disco gerada:            {mb_poupados:.2f} MB
 ==================================================
 """
