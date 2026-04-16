@@ -3,16 +3,7 @@
 Projeto: Monitoramento de Logs TOTVS Datasul
 Módulo:  Motor de Compactação e Limpeza (Backend - Disco)
 Arquivo: compacta_logs.py
-
-Descrição: 
-Script focado EXCLUSIVAMENTE em I/O de disco. Varre a estrutura de rede local, identifica 
-pastas de log com idade superior à retenção configurada, as consolida em pacotes ZIP únicos
-e as exclui para poupar clusters e Master File Table.
-Contém proteção contra arquivos "fantasmas" de cache de rede (WinError 2).
-
-Autor: Marcio Jose Gomes Bastos Filho
-Data de Criação: 15/04/2026
-Versão: 1.1
+Versão: 2.4 (RECURSIVO)
 =============================================================================================
 """
 
@@ -25,114 +16,76 @@ from tqdm import tqdm
 import subprocess
 import sys 
 
-# Força a saída de texto a usar UTF-8
-if hasattr(sys.stdout, 'reconfigure'):
-    sys.stdout.reconfigure(encoding='utf-8')
-if hasattr(sys.stderr, 'reconfigure'):
-    sys.stderr.reconfigure(encoding='utf-8')
+if hasattr(sys.stdout, 'reconfigure'): sys.stdout.reconfigure(encoding='utf-8')
 
-# Variáveis de Rede e Retenção
 UNIDADE_REDE = "L:"
 CAMINHO_UNC = r"\\192.168.0.247\Logs_Datasul"
-DIRETORIO_BASE_LOCAL = rf"{UNIDADE_REDE}\Producao"
-DIAS_RETENCAO_COMPACTACAO = 10
+AMBIENTES = ["Producao", "Homologacao", "Prototipo"]
+
+DIAS_RETENCAO_COMPACTACAO = 5
+DIAS_RETENCAO_EXPURGO = 90
 
 def main():
     tempo_inicio = datetime.now()
-    hora_inicio_str = tempo_inicio.strftime("%d/%m/%Y %H:%M:%S")
-    
-    # Auto-mapeamento de rede (Garante que vai rodar no Agendador de Tarefas)
     if not os.path.exists(f"{UNIDADE_REDE}\\"):
-        try:
-            subprocess.run(["net", "use", UNIDADE_REDE, CAMINHO_UNC], check=True, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        except subprocess.CalledProcessError:
-            pass 
+        try: subprocess.run(["net", "use", UNIDADE_REDE, CAMINHO_UNC], check=True, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except: pass 
             
-    if not os.path.exists(DIRETORIO_BASE_LOCAL):
-        print("[ERRO] Diretório base não encontrado. Verifique o mapeamento da rede.")
-        return
-
-    print(f"\n[INICIO] Rotina de Compactação de Disco iniciada em: {hora_inicio_str} ...")
+    print(f"\n[INICIO] Rotina de Compactacao e Expurgo (Recursiva) em: {tempo_inicio.strftime('%d/%m/%Y %H:%M:%S')}")
+    t_comp, t_exp, b_comp, b_exp = 0, 0, 0, 0
     
-    qtd_pastas_compactadas = 0
-    bytes_poupados = 0
-    
-    # Mapeia todos os serviços (ex: jboss_autorizador, logs_pasoe)
-    servicos = [d for d in os.listdir(DIRETORIO_BASE_LOCAL) if os.path.isdir(os.path.join(DIRETORIO_BASE_LOCAL, d))]
-    pbar_geral = tqdm(servicos, desc="Varredura de Serviços", position=0, leave=True, colour='yellow')
+    for amb in AMBIENTES:
+        pasta_amb = rf"{UNIDADE_REDE}\{amb}"
+        if not os.path.exists(pasta_amb): continue
+        print(f"\n--- Varrendo: {amb} ---")
+        servicos = [d for d in os.listdir(pasta_amb) if os.path.isdir(os.path.join(pasta_amb, d))]
+        pbar = tqdm(servicos, desc=f"Progresso {amb}", colour='yellow')
 
-    for servico in pbar_geral:
-        pbar_geral.set_postfix_str(f"Analisando: {servico}")
-        pasta_destino_servico = os.path.join(DIRETORIO_BASE_LOCAL, servico)
-        
-        # Lista tudo dentro do serviço
-        itens_servico = os.listdir(pasta_destino_servico)
-        
-        for item in itens_servico:
-            caminho_completo = os.path.join(pasta_destino_servico, item)
+        for serv in pbar:
+            pbar.set_postfix_str(f"Analisando: {serv}")
+            dest_serv = os.path.join(pasta_amb, serv)
             
-            # Checa se é uma pasta de DATA (ex: 2026-03-24)
-            if os.path.isdir(caminho_completo) and re.match(r'20\d{2}-\d{2}-\d{2}', item):
-                try:
-                    data_pasta = datetime.strptime(item, "%Y-%m-%d")
-                    idade_dias = (tempo_inicio - data_pasta).days
-                    
-                    if idade_dias > DIAS_RETENCAO_COMPACTACAO:
-                        caminho_zip = caminho_completo + '.zip'
+            # 🛡️ BUSCA RECURSIVA PARA EXPURGO 🛡️
+            for raiz, dirs, arqs in os.walk(dest_serv, topdown=False):
+                # Processa Arquivos (Zips antigos perdidos)
+                for arq in arqs:
+                    if "_ATIVO" in arq: continue
+                    m = re.search(r'(20\d{2}-\d{2}-\d{2})', arq)
+                    if m:
+                        idade = (tempo_inicio - datetime.strptime(m.group(1), "%Y-%m-%d")).days
+                        if idade > DIAS_RETENCAO_EXPURGO:
+                            c_arq = os.path.join(raiz, arq)
+                            b_exp += os.path.getsize(c_arq)
+                            os.remove(c_arq); t_exp += 1
+                            tqdm.write(f"      [EXPURGO] Arquivo: {arq}")
+
+                # Processa Pastas (Pastas antigas de 2025)
+                for d in dirs:
+                    m = re.search(r'(20\d{2}-\d{2}-\d{2})', d)
+                    if m:
+                        c_dir = os.path.join(raiz, d)
+                        idade = (tempo_inicio - datetime.strptime(m.group(1), "%Y-%m-%d")).days
                         
-                        # Calcula tamanho original
-                        tamanho_orig = sum(os.path.getsize(os.path.join(dirpath, filename)) 
-                                           for dirpath, _, filenames in os.walk(caminho_completo) 
-                                           for filename in filenames)
+                        # REGRA SOBERANA: DELETA TUDO > 90
+                        if idade > DIAS_RETENCAO_EXPURGO:
+                            b_exp += sum(os.path.getsize(os.path.join(dp, f)) for dp, _, fs in os.walk(c_dir) for f in fs)
+                            shutil.rmtree(c_dir); t_exp += 1
+                            tqdm.write(f"      [EXPURGO] Pasta: {d}")
                         
-                        if tamanho_orig > 0:
-                            # Compressão ZIP máxima
-                            with zipfile.ZipFile(caminho_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
-                                for root_dir, _, files in os.walk(caminho_completo):
-                                    for file in files:
-                                        file_path = os.path.join(root_dir, file)
-                                        
-                                        #  PROTEÇÃO CONTRA WINERROR 2 (Arquivos fantasmas na rede) 🛡️
-                                        if os.path.exists(file_path):
-                                            # Mantém estrutura interna limpa
-                                            arcname = os.path.relpath(file_path, pasta_destino_servico)
-                                            zipf.write(file_path, arcname=arcname)
-                                        
-                            tamanho_novo = os.path.getsize(caminho_zip)
-                            shutil.rmtree(caminho_completo) # Limpa a pasta
-                            
-                            qtd_pastas_compactadas += 1
-                            bytes_poupados += (tamanho_orig - tamanho_novo)
-                            tqdm.write(f"      [COMPACTACAO] Pasta {item} unificada em ZIP (Idade: {idade_dias} dias).")
-                        else:
-                            shutil.rmtree(caminho_completo) # Limpa se estiver vazia
-                except Exception as e:
-                    tqdm.write(f"      [ERRO] Falha ao processar pasta {item}: {e}")
+                        # REGRA DE COMPACTACAO: 11 A 90 DIAS
+                        elif idade > DIAS_RETENCAO_COMPACTACAO:
+                            c_zip = c_dir + '.zip'
+                            if not os.path.exists(c_zip):
+                                t_orig = sum(os.path.getsize(os.path.join(dp, f)) for dp, _, fs in os.walk(c_dir) for f in fs)
+                                with zipfile.ZipFile(c_zip, 'w', zipfile.ZIP_DEFLATED) as zf:
+                                    for r_d, _, fls in os.walk(c_dir):
+                                        for f in fls:
+                                            fp = os.path.join(r_d, f)
+                                            if os.path.exists(fp): zf.write(fp, os.path.relpath(fp, dest_serv))
+                                b_comp += (t_orig - os.path.getsize(c_zip))
+                                shutil.rmtree(c_dir); t_comp += 1
+                                tqdm.write(f"      [COMPACTACAO] {d}")
 
-    tempo_fim = datetime.now()
-    duracao = tempo_fim - tempo_inicio
-    mb_poupados = bytes_poupados / (1024 * 1024)
-    
-    relatorio = f"""
-==================================================
-RELATÓRIO DE DISCO (COMPRESSOR)
-==================================================
-Início: {hora_inicio_str} | Fim: {tempo_fim.strftime("%d/%m/%Y %H:%M:%S")}
-Tempo total: {duracao}
+    print(f"\nFim. Expurgados: {t_exp} | Compactados: {t_comp} | Liberado: {b_exp/(1024**2):.2f} MB")
 
-Pastas diárias unificadas (>10d):    {qtd_pastas_compactadas}
-Economia de Disco gerada:            {mb_poupados:.2f} MB
-==================================================
-"""
-    print(relatorio)
-    
-    try:
-        arquivo_log_relatorio = os.path.join(DIRETORIO_BASE_LOCAL, "relatorio_compactacao.txt")
-        conteudo_antigo = ""
-        if os.path.exists(arquivo_log_relatorio):
-            with open(arquivo_log_relatorio, "r", encoding="utf-8") as f: conteudo_antigo = f.read()
-        with open(arquivo_log_relatorio, "w", encoding="utf-8") as f: f.write(relatorio + "\n" + conteudo_antigo)
-    except Exception: pass
-
-if __name__ == "__main__":
-    main()
+if __name__ == "__main__": main()

@@ -6,13 +6,14 @@ Arquivo: coleta_logs.py
 
 Descrição: 
 Script focado EXCLUSIVAMENTE em web scraping e download. Acessa múltiplos servidores
-(Produção, Homologação, Protótipo), baixa históricos novos e atualiza os logs ativos.
-A compactação foi movida para outro robô. Zero caracteres especiais no terminal.
+(Producao, Homologacao, Prototipo), baixa históricos novos e atualiza os logs ativos.
+Inclui FILTRO DE IDADE (21 dias) e NAVEGAÇÃO RECURSIVA para lidar com subpastas profundas
+geradas pelo PASOE/Tomcat, garantindo que nada antigo seja baixado acidentalmente.
 
 Autor: Marcio Jose Gomes Bastos Filho
 Data de Criação: 25/03/2026
-Última Atualização: 15/04/2026
-Versão: 4.1
+Última Atualização: 16/04/2026
+Versão: 4.5 (RECURSIVO)
 =============================================================================================
 """
 
@@ -37,12 +38,15 @@ if hasattr(sys.stderr, 'reconfigure'):
 UNIDADE_REDE = "L:"
 CAMINHO_UNC = r"\\192.168.0.247\Logs_Datasul"
 
-# Dicionario de Ambientes (Nome do Ambiente : URL Raiz)
+# Dicionario de Ambientes
 AMBIENTES = {
     "Producao": "https://unimedencosta183931.datasul.cloudtotvs.com.br:8777/logs/",
     "Homologacao": "https://unimedencosta184349.datasul.cloudtotvs.com.br:8777/logs/",
     "Prototipo": "https://unimedencosta184282.datasul.cloudtotvs.com.br:8777/logs/"
 }
+
+# REGRA DE REDE: Ignora download de logs no servidor mais velhos que X dias.
+LIMITE_DOWNLOAD_DIAS = 21
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -80,8 +84,47 @@ def classificar_arquivo(nome_arquivo):
     if re.search(r'20\d{2}[-_]?\d{2}[-_]?\d{2}', nome_arquivo): return 'HISTORICO'
     return 'ATIVO'
 
-def processar_ambiente(nome_ambiente, url_ambiente):
-    """Processa a coleta de logs para um unico ambiente"""
+def baixar_recursivo(url_origem, pasta_destino, tempo_inicio, pbar):
+    """Navega profundamente nas subpastas do HTTP e baixa apenas os arquivos permitidos."""
+    qtd = 0
+    subdirs, arquivos = obter_conteudo_pagina(url_origem)
+    
+    # Processa os arquivos do nivel atual
+    for arq in arquivos:
+        data_arq = extrair_data(arq)
+        try:
+            if (tempo_inicio - datetime.strptime(data_arq, "%Y-%m-%d")).days > LIMITE_DOWNLOAD_DIAS:
+                continue # Muito velho, ignora
+        except Exception: pass
+        
+        caminho_local = os.path.join(pasta_destino, arq)
+        if not os.path.exists(caminho_local) and not os.path.exists(caminho_local + '.gz') and not os.path.exists(caminho_local + '.zip'):
+            pbar.set_postfix_str(f"Baixando: {arq[:20]}...")
+            try:
+                with requests.get(urljoin(url_origem, arq), stream=True, verify=False, timeout=60) as r:
+                    r.raise_for_status()
+                    with open(caminho_local, 'wb') as f:
+                        for chunk in r.iter_content(8192): f.write(chunk)
+                qtd += 1
+            except Exception: pass
+            
+    # Mergulha nas subpastas
+    for d in subdirs:
+        data_dir = extrair_data(d)
+        try:
+            if (tempo_inicio - datetime.strptime(data_dir, "%Y-%m-%d")).days > LIMITE_DOWNLOAD_DIAS:
+                continue # Pasta velha, nem entra nela
+        except Exception: pass
+        
+        nova_url = urljoin(url_origem, d)
+        nova_pasta = os.path.join(pasta_destino, d.replace('/', ''))
+        os.makedirs(nova_pasta, exist_ok=True)
+        # Chamada recursiva: a função chama a si mesma para o próximo nível
+        qtd += baixar_recursivo(nova_url, nova_pasta, tempo_inicio, pbar)
+        
+    return qtd
+
+def processar_ambiente(nome_ambiente, url_ambiente, tempo_inicio):
     pasta_raiz_ambiente = rf"{UNIDADE_REDE}\{nome_ambiente}"
     os.makedirs(pasta_raiz_ambiente, exist_ok=True)
     
@@ -91,7 +134,7 @@ def processar_ambiente(nome_ambiente, url_ambiente):
     servicos, _ = obter_conteudo_pagina(url_ambiente)
     
     if not servicos:
-        print(f"[ERRO] Nenhum servico encontrado no ambiente {nome_ambiente}. Verifique a URL ou a conexao.")
+        print(f"[ERRO] Nenhum servico encontrado no ambiente {nome_ambiente}.")
         return 0, 0, 0
 
     pbar_geral = tqdm(servicos, desc=f"Progresso {nome_ambiente}", position=0, leave=True, colour='green')
@@ -106,38 +149,36 @@ def processar_ambiente(nome_ambiente, url_ambiente):
         while True:
             subdiretorios, arquivos_soltos = obter_conteudo_pagina(url_servico)
             pastas_horario_inicio = [d for d in subdiretorios if re.match(r'\d{4}-\d{2}-\d{2}_\d{2}_\d{2}/', d)]
-            arquivos_hist_inicio = [a for a in arquivos_soltos if classificar_arquivo(a) == 'HISTORICO']
             ativos_da_rodada = []
             
+            # --- PROCESSAMENTO RECURSIVO DAS PASTAS ROTACIONADAS ---
             for pasta in pastas_horario_inicio:
                 data_pasta_pasoe = pasta[:10] 
+                
+                # Regra Global de 21 dias
+                try:
+                    data_obj = datetime.strptime(data_pasta_pasoe, "%Y-%m-%d")
+                    if (tempo_inicio - data_obj).days > LIMITE_DOWNLOAD_DIAS:
+                        continue 
+                except Exception: pass
+                
+                # Se o dia já virou ZIP pelo robô de limpeza, pula o download inteiro
                 zip_do_dia = os.path.join(pasta_destino_servico, f"{data_pasta_pasoe}.zip")
                 if os.path.exists(zip_do_dia): continue
                 
                 pasta_destino_consolidada = os.path.join(pasta_destino_servico, data_pasta_pasoe, pasta.replace('/', ''))
                 os.makedirs(pasta_destino_consolidada, exist_ok=True)
-                _, arquivos_da_pasta = obter_conteudo_pagina(urljoin(url_servico, pasta))
                 
-                if arquivos_da_pasta:
-                    pbar_pasta = tqdm(arquivos_da_pasta, desc=f"    {pasta}", position=1, leave=False, colour='blue')
-                    for arq in pbar_pasta:
-                        caminho_local = os.path.join(pasta_destino_consolidada, arq)
-                        if not os.path.exists(caminho_local) and not os.path.exists(caminho_local + '.gz') and not os.path.exists(caminho_local + '.zip'): 
-                            pbar_pasta.set_postfix_str(f"Baixando: {arq}")
-                            try:
-                                with requests.get(urljoin(url_servico, pasta + arq), stream=True, verify=False, timeout=60) as r:
-                                    r.raise_for_status()
-                                    with open(caminho_local, 'wb') as f:
-                                        for chunk in r.iter_content(8192): f.write(chunk)
-                                qtd_historicos += 1
-                            except Exception as e:
-                                tqdm.write(f"      [ERRO] Falha ao baixar {arq}: {e}")
+                # Onde a mágica acontece: delega para a função recursiva vasculhar a fundo
+                qtd_historicos += baixar_recursivo(urljoin(url_servico, pasta), pasta_destino_consolidada, tempo_inicio, pbar_geral)
             
+            # --- PROCESSAMENTO DOS LOGS ATIVOS NA RAIZ ---
             if arquivos_soltos:
                 pbar_raiz = tqdm(arquivos_soltos, desc=f"    Raiz ({nome_servico})", position=1, leave=False, colour='cyan')
                 for arquivo in pbar_raiz:
                     status = classificar_arquivo(arquivo)
                     url_arquivo = urljoin(url_servico, arquivo)
+                    
                     if status == 'ATIVO':
                         nome_base, extensao = os.path.splitext(arquivo)
                         nome_final = f"{nome_base}_ATIVO{extensao}"
@@ -151,14 +192,24 @@ def processar_ambiente(nome_ambiente, url_ambiente):
                                     for chunk in r.iter_content(8192): f.write(chunk)
                             qtd_snapshots += 1
                         except Exception: pass
+                        
                     elif status == 'HISTORICO':
                         pasta_data = extrair_data(arquivo)
+                        
+                        try:
+                            data_obj = datetime.strptime(pasta_data, "%Y-%m-%d")
+                            if (tempo_inicio - data_obj).days > LIMITE_DOWNLOAD_DIAS:
+                                continue 
+                        except Exception: pass
+                        
                         if os.path.exists(os.path.join(pasta_destino_servico, f"{pasta_data}.zip")): continue
+                        
                         pasta_destino_final = os.path.join(pasta_destino_servico, pasta_data)
                         os.makedirs(pasta_destino_final, exist_ok=True)
                         caminho_local = os.path.join(pasta_destino_final, arquivo)
+                        
                         if not os.path.exists(caminho_local) and not os.path.exists(caminho_local + '.gz') and not os.path.exists(caminho_local + '.zip'):
-                            pbar_raiz.set_postfix_str(f"Baixando Historico: {arquivo}")
+                            pbar_raiz.set_postfix_str(f"Baixando Histórico: {arquivo}")
                             try:
                                 with requests.get(url_arquivo, stream=True, verify=False, timeout=60) as r:
                                     r.raise_for_status()
@@ -194,14 +245,14 @@ def main():
         except subprocess.CalledProcessError: pass 
     
     print(f"\n[INICIO] Coleta de Rede Multi-Ambiente iniciada em: {hora_inicio_str}")
+    print(f"         Bloqueio de Download configurado para ignorar logs > {LIMITE_DOWNLOAD_DIAS} dias.")
     
     total_historicos = 0
     total_snapshots = 0
     total_limpos = 0
     
-    # Processa todos os ambientes sequencialmente
     for nome_ambiente, url_ambiente in AMBIENTES.items():
-        hist, snap, limp = processar_ambiente(nome_ambiente, url_ambiente)
+        hist, snap, limp = processar_ambiente(nome_ambiente, url_ambiente, tempo_inicio)
         total_historicos += hist
         total_snapshots += snap
         total_limpos += limp
@@ -221,7 +272,6 @@ Snapshots orfaos removidos:          {total_limpos}
 """
     print(relatorio)
     
-    # Salva um unico relatorio consolidado na raiz do L:
     try:
         arquivo_log_relatorio = os.path.join(f"{UNIDADE_REDE}\\", "relatorio_coleta_geral.txt")
         conteudo_antigo = ""
