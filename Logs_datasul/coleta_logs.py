@@ -273,12 +273,13 @@ Snapshots orfaos removidos:          {total_limpos}
     print(relatorio)
     
     try:
-        arquivo_log_relatorio = os.path.join(f"{UNIDADE_REDE}\\", "relatorio_coleta_geral.txt")
+        # Usando CAMINHO_UNC direto no lugar de UNIDADE_REDE
+        arquivo_log_relatorio = os.path.join(CAMINHO_UNC, "relatorio_compactacao_geral.txt")
         conteudo_antigo = ""
         if os.path.exists(arquivo_log_relatorio):
             with open(arquivo_log_relatorio, "r", encoding="utf-8") as f: conteudo_antigo = f.read()
         with open(arquivo_log_relatorio, "w", encoding="utf-8") as f: f.write(relatorio + "\n" + conteudo_antigo)
-    except Exception: pass
-
+    except Exception as e: 
+        print(f"Erro ao salvar relatorio: {e}")
 if __name__ == "__main__":
     main()
