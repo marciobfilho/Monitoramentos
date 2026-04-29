@@ -1,19 +1,19 @@
 """
 =============================================================================================
 Projeto: Monitoramento de Logs TOTVS Datasul
-Módulo:  Painel Web de Métricas (Frontend) - Visão Unificada
+Módulo:  Painel Web de Métricas (Frontend) - Visão Unificada Turbo
 Arquivo: painel_logs.py
 
 Descrição: 
 Dashboard interativo para monitorar logs do ambiente Datasul.
-Versão 5.0: Elimina o seletor de ambientes e exibe tudo em uma única página (Single Pane of Glass).
-Adiciona gráfico global comparativo (Ambientes x Espaço Livre) e consolida os gráficos
-de componentes lado a lado.
+Versão 5.1: Otimização extrema de I/O de rede utilizando os.scandir() para evitar 
+travamentos (infinite loading) em mapeamentos SMB (L:\) com grande volume de dados.
+Inclusão dos novos mapeamentos JBoss e PASOE Linux na legenda.
 
 Autor: Marcio Jose Gomes Bastos Filho
 Data de Criação: 26/03/2026
-Última Atualização: 16/04/2026
-Versão: 5.0
+Última Atualização: 29/04/2026
+Versão: 5.1
 =============================================================================================
 """
 
@@ -32,20 +32,34 @@ BASE_DIR_LOGS = r"\\192.168.0.247\Logs_Datasul"
 DIRETORIO_TCPING = r"C:\Users\marciof\Documents\GitHub\Monitoramentos\Tcping\logs"
 AMBIENTES_DISPONIVEIS = ["Producao", "Homologacao", "Prototipo"]
 
-# Dicionario de Apelidos Amigaveis
+# Regex compilado globalmente para máxima performance
+DATE_PATTERN = re.compile(r'(20\d{2}-\d{2}-\d{2})')
+
+# Dicionario de Apelidos Amigaveis (Atualizado com novos serviços)
 DICIONARIO_APELIDOS = {
     "tomcat_datasul": "Tomcat (Datasul)",
     "pasoe_outros_arquivos": "PASOE: Outros",
+    "jboss_autorizador": "JBoss: Autorizador",
+    "jboss_foundation_ptu": "JBoss: Foundation PTU",
+    "jboss_foundation_gpu": "JBoss: Foundation GPU",
+    "pasoe_rpw_linux": "PASOE: RPW (Linux)",
+    "pasoe_rpwlog_linux": "PASOE: RPW Log (Linux)",
+    
+    # Producao (_p)
     "dts_c652ui-atr_p": "PASOE: ATR",
     "dts_c652ui-fnd_p": "PASOE: FND",
     "dts_c652ui_p": "PASOE: Principal",
     "rpw_c652ui-log_p": "RPW: Logs",
     "rpw_c652ui-rpw_p": "RPW: Principal",
+    
+    # Homologacao (_q)
     "dts_c652ui-atr_q": "PASOE: ATR",
     "dts_c652ui-fnd_q": "PASOE: FND",
     "dts_c652ui_q": "PASOE: Principal",
     "rpw_c652ui-log_q": "RPW: Logs",
     "rpw_c652ui-q_q": "RPW: Secundário",
+    
+    # Prototipo (_t)
     "dts_c652ui-atr_t": "PASOE: ATR",
     "dts_c652ui-fnd_t": "PASOE: FND",
     "dts_c652ui_t": "PASOE: Principal",
@@ -65,47 +79,67 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-def obter_metricas_ambiente(diretorio_alvo):
-    """Calcula tamanho e retencao para um unico ambiente."""
+# Cache de 45 segundos para evitar que a UI congele se o usuário clicar em algo
+@st.cache_data(ttl=45)
+def obter_metricas_ambiente_fast(diretorio_alvo):
+    """Calcula tamanho e retenção usando os.scandir() para performance extrema em rede."""
     tamanho_total_bytes = 0
     tempo_mais_antigo = None
     quantidade_arquivos = 0
     tamanho_por_servico = {}
 
-    if os.path.exists(diretorio_alvo):
-        servicos = [d for d in os.listdir(diretorio_alvo) if os.path.isdir(os.path.join(diretorio_alvo, d))]
-        for servico in servicos:
-            caminho_servico = os.path.join(diretorio_alvo, servico)
-            for raiz, _, arquivos in os.walk(caminho_servico):
-                nome_pasta = os.path.basename(raiz)
-                match_pasta = re.search(r'(20\d{2}-\d{2}-\d{2})', nome_pasta)
-                if match_pasta:
-                    data_pasta = datetime.datetime.strptime(match_pasta.group(1), "%Y-%m-%d")
-                    if not tempo_mais_antigo or data_pasta < tempo_mais_antigo:
-                        tempo_mais_antigo = data_pasta
+    if not os.path.exists(diretorio_alvo):
+        return 0, None, 0, {}
 
-                for arquivo in arquivos:
-                    caminho_completo = os.path.join(raiz, arquivo)
-                    if not os.path.islink(caminho_completo):
-                        tamanho = os.path.getsize(caminho_completo)
-                        tamanho_total_bytes += tamanho
-                        quantidade_arquivos += 1
-                        
-                        match_arquivo = re.search(r'(20\d{2}-\d{2}-\d{2})', arquivo)
-                        if match_arquivo:
-                            data_arquivo = datetime.datetime.strptime(match_arquivo.group(1), "%Y-%m-%d")
-                            if not tempo_mais_antigo or data_arquivo < tempo_mais_antigo:
-                                tempo_mais_antigo = data_arquivo
+    try:
+        with os.scandir(diretorio_alvo) as it:
+            servicos = [entry.name for entry in it if entry.is_dir()]
+    except Exception:
+        return 0, None, 0, {}
+
+    for servico in servicos:
+        caminho_servico = os.path.join(diretorio_alvo, servico)
+        dirs_to_scan = [caminho_servico]
+        
+        while dirs_to_scan:
+            current_dir = dirs_to_scan.pop()
+            try:
+                with os.scandir(current_dir) as it:
+                    for entry in it:
+                        # Checa a data no nome do arquivo ou pasta
+                        match_data = DATE_PATTERN.search(entry.name)
+                        if match_data:
+                            data_item = datetime.datetime.strptime(match_data.group(1), "%Y-%m-%d")
+                            if not tempo_mais_antigo or data_item < tempo_mais_antigo:
+                                tempo_mais_antigo = data_item
+
+                        if entry.is_dir():
+                            dirs_to_scan.append(entry.path)
+                        elif entry.is_file():
+                            try:
+                                # entry.stat() é nativamente rápido no scandir (lê o índice direto)
+                                tamanho = entry.stat().st_size
+                                tamanho_total_bytes += tamanho
+                                quantidade_arquivos += 1
                                 
-                        if "jboss" not in servico.lower():
-                            nome_barra = arquivo.split(".agent.")[0] if ".agent." in arquivo else "pasoe_outros_arquivos"
-                            tamanho_por_servico[nome_barra] = tamanho_por_servico.get(nome_barra, 0) + tamanho
-                            
-        for chave in tamanho_por_servico:
-            tamanho_por_servico[chave] = tamanho_por_servico[chave] / (1024**3)
+                                # Lógica de Agrupamento de Serviços
+                                nome_barra = servico.lower()
+                                if nome_barra == "logs_pasoe":
+                                    if ".agent." in entry.name:
+                                        nome_barra = entry.name.split(".agent.")[0].lower()
+                                    else:
+                                        nome_barra = "pasoe_outros_arquivos"
+                                        
+                                tamanho_por_servico[nome_barra] = tamanho_por_servico.get(nome_barra, 0) + tamanho
+                            except Exception: pass
+            except Exception: pass
+
+    for chave in list(tamanho_por_servico.keys()):
+        tamanho_por_servico[chave] = tamanho_por_servico[chave] / (1024**3)
             
     return tamanho_total_bytes, tempo_mais_antigo, quantidade_arquivos, tamanho_por_servico
 
+@st.cache_data(ttl=45)
 def obter_metricas_rede_historico(diretorio):
     df_vazio = pd.DataFrame()
     if not os.path.exists(diretorio): return df_vazio, "Erro", 0.0
@@ -114,7 +148,7 @@ def obter_metricas_rede_historico(diretorio):
     ultimos_arquivos = arquivos[-3:]; dados = []; status_atual = "Desconhecido"; latencia_atual = 0.0
     for caminho_arquivo in ultimos_arquivos:
         nome_arquivo = os.path.basename(caminho_arquivo)
-        match_data_fn = re.search(r'tcping_(20\d{2}-\d{2}-\d{2})_', nome_arquivo)
+        match_data_fn = DATE_PATTERN.search(nome_arquivo)
         data_arquivo = match_data_fn.group(1) if match_data_fn else None
         try:
             with open(caminho_arquivo, 'r', encoding='utf-8', errors='ignore') as f: linhas = f.readlines()
@@ -143,10 +177,10 @@ gb_logs_total = 0
 arquivos_total = 0
 tempo_mais_antigo_global = None
 
-with st.spinner('Consolidando métricas de todo o Storage...'):
+with st.spinner('Consolidando métricas do Storage (I/O Otimizado)...'):
     for amb in AMBIENTES_DISPONIVEIS:
         dir_amb = os.path.join(BASE_DIR_LOGS, amb)
-        t_bytes, t_antigo, qtd_arq, servicos = obter_metricas_ambiente(dir_amb)
+        t_bytes, t_antigo, qtd_arq, servicos = obter_metricas_ambiente_fast(dir_amb)
         
         gb_amb = t_bytes / (1024**3)
         gb_logs_total += gb_amb
@@ -271,4 +305,4 @@ for idx, amb in enumerate(AMBIENTES_DISPONIVEIS):
             st.info("Nenhum log detectado.")
 
 st.markdown("---")
-st.caption(f"NOC Edition v5.0 (Unified) | Atualização: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} | Storage: {BASE_DIR_LOGS}")
+st.caption(f"NOC Edition v5.1 (Turbo) | Atualização: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} | Storage: {BASE_DIR_LOGS}")
