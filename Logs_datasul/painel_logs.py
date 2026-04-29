@@ -6,14 +6,14 @@ Arquivo: painel_logs.py
 
 Descrição: 
 Dashboard interativo para monitorar logs do ambiente Datasul.
-Versão 5.1: Otimização extrema de I/O de rede utilizando os.scandir() para evitar 
-travamentos (infinite loading) em mapeamentos SMB (L:\) com grande volume de dados.
-Inclusão dos novos mapeamentos JBoss e PASOE Linux na legenda.
+Versão 5.2: Inclusão de percentuais dentro das fatias dos gráficos, fim da 
+generalização "Outros" para nomes reais de serviços, e inclusão do "Espaço Livre" 
+(em verde) nos gráficos individuais de cada ambiente.
 
 Autor: Marcio Jose Gomes Bastos Filho
 Data de Criação: 26/03/2026
 Última Atualização: 29/04/2026
-Versão: 5.1
+Versão: 5.2
 =============================================================================================
 """
 
@@ -35,10 +35,10 @@ AMBIENTES_DISPONIVEIS = ["Producao", "Homologacao", "Prototipo"]
 # Regex compilado globalmente para máxima performance
 DATE_PATTERN = re.compile(r'(20\d{2}-\d{2}-\d{2})')
 
-# Dicionario de Apelidos Amigaveis (Atualizado com novos serviços)
+# Dicionario de Apelidos Amigaveis (Sem generalizacao "Outros")
 DICIONARIO_APELIDOS = {
     "tomcat_datasul": "Tomcat (Datasul)",
-    "pasoe_outros_arquivos": "PASOE: Outros",
+    "logs_pasoe_geral": "PASOE: Base/Raiz",
     "jboss_autorizador": "JBoss: Autorizador",
     "jboss_foundation_ptu": "JBoss: Foundation PTU",
     "jboss_foundation_gpu": "JBoss: Foundation GPU",
@@ -79,7 +79,10 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# Cache de 45 segundos para evitar que a UI congele se o usuário clicar em algo
+# Formatador de Porcentagem para os Graficos (Esconde se for < 2% para nao poluir)
+def format_pct(pct):
+    return f"{pct:.1f}%" if pct > 2.0 else ""
+
 @st.cache_data(ttl=45)
 def obter_metricas_ambiente_fast(diretorio_alvo):
     """Calcula tamanho e retenção usando os.scandir() para performance extrema em rede."""
@@ -106,7 +109,6 @@ def obter_metricas_ambiente_fast(diretorio_alvo):
             try:
                 with os.scandir(current_dir) as it:
                     for entry in it:
-                        # Checa a data no nome do arquivo ou pasta
                         match_data = DATE_PATTERN.search(entry.name)
                         if match_data:
                             data_item = datetime.datetime.strptime(match_data.group(1), "%Y-%m-%d")
@@ -117,18 +119,17 @@ def obter_metricas_ambiente_fast(diretorio_alvo):
                             dirs_to_scan.append(entry.path)
                         elif entry.is_file():
                             try:
-                                # entry.stat() é nativamente rápido no scandir (lê o índice direto)
                                 tamanho = entry.stat().st_size
                                 tamanho_total_bytes += tamanho
                                 quantidade_arquivos += 1
                                 
-                                # Lógica de Agrupamento de Serviços
+                                # Logica de Agrupamento de Servicos (Sem generalizacao)
                                 nome_barra = servico.lower()
                                 if nome_barra == "logs_pasoe":
                                     if ".agent." in entry.name:
                                         nome_barra = entry.name.split(".agent.")[0].lower()
                                     else:
-                                        nome_barra = "pasoe_outros_arquivos"
+                                        nome_barra = "logs_pasoe_geral"
                                         
                                 tamanho_por_servico[nome_barra] = tamanho_por_servico.get(nome_barra, 0) + tamanho
                             except Exception: pass
@@ -207,7 +208,7 @@ with st.spinner('Consolidando métricas do Storage (I/O Otimizado)...'):
 
 now = pd.Timestamp.now()
 
-# --- LINHA 1: MÉTRICAS GLOBAIS E REDE ---
+# --- LINHA 1: METRICAS GLOBAIS E REDE ---
 col_met_1, col_met_2, col_met_3 = st.columns(3)
 
 with col_met_1:
@@ -228,7 +229,7 @@ with col_met_3:
 
 st.markdown("---")
 
-# --- LINHA 2: GRÁFICOS DE REDE ---
+# --- LINHA 2: GRAFICOS DE REDE ---
 st.markdown("**Histórico de Conectividade**")
 if not df_rede_hist.empty:
     c5, c1h, c1d = st.columns(3)
@@ -255,17 +256,25 @@ with c_global_pizza:
             dados_ambientes["Prototipo"]["gb"], 
             gb_livre
         ]
-        # Cores fixas: Azul, Laranja, Roxo, e o Verde Neon imposto para o espaço livre
         cores_globais = ['#1f77b4', '#ff7f0e', '#9467bd', '#00FF00']
         
         fig, ax = plt.subplots(figsize=(5, 3))
         fig.patch.set_alpha(0)
-        wedges, _ = ax.pie(valores_globais, startangle=140, colors=cores_globais, wedgeprops={'edgecolor': 'white'})
+        wedges, texts, autotexts = ax.pie(
+            valores_globais, 
+            startangle=140, 
+            colors=cores_globais, 
+            wedgeprops={'edgecolor': 'white'},
+            autopct=format_pct,
+            pctdistance=0.75
+        )
+        plt.setp(autotexts, size=8, weight="bold", color="white")
+        
         ax.legend(wedges, labels_globais, title="Uso Global", loc="center left", bbox_to_anchor=(0.9, 0.5), fontsize=10)
         ax.axis('equal')
         st.pyplot(fig, clear_figure=True)
 
-# Miniquadros informativos ao lado do gráfico global
+# Miniquadros informativos
 amb_cols = [c_prod, c_homol, c_proto]
 for idx, amb in enumerate(AMBIENTES_DISPONIVEIS):
     with amb_cols[idx]:
@@ -278,8 +287,8 @@ for idx, amb in enumerate(AMBIENTES_DISPONIVEIS):
 
 st.markdown("---")
 
-# --- LINHA 4: DISTRIBUIÇÃO INTERNA (ZOOM NOS COMPONENTES) ---
-st.markdown("**Distribuição Interna de Logs por Ambiente**")
+# --- LINHA 4: DISTRIBUICAO INTERNA (ZOOM NOS COMPONENTES) ---
+st.markdown("**Distribuição Interna de Logs por Ambiente (Incluindo Espaço Livre)**")
 col_pizza_1, col_pizza_2, col_pizza_3 = st.columns(3)
 pizza_cols = [col_pizza_1, col_pizza_2, col_pizza_3]
 
@@ -288,16 +297,33 @@ for idx, amb in enumerate(AMBIENTES_DISPONIVEIS):
         st.markdown(f"*{amb}*")
         servicos_amb = dados_ambientes[amb]["servicos"]
         
-        if servicos_amb:
+        if servicos_amb and disco:
             labels_originais = list(servicos_amb.keys())
             tamanhos = list(servicos_amb.values())
             labels_apelidados = [DICIONARIO_APELIDOS.get(n, n.replace('_', ' ').title()) for n in labels_originais]
             
+            # Adiciona o Espaço Livre ao grafico do ambiente
+            labels_apelidados.append("Espaço Livre")
+            tamanhos.append(gb_livre)
+            
+            # Mapeamento dinâmico de cores forçando o Verde no final
+            prop_cycle = plt.rcParams['axes.prop_cycle']
+            default_colors = prop_cycle.by_key()['color']
+            cores_fatias = [default_colors[i % len(default_colors)] for i in range(len(tamanhos)-1)]
+            cores_fatias.append('#00FF00') # Verde neon para Espaço Livre
+            
             fig, ax = plt.subplots(figsize=(4, 2.5))
             fig.patch.set_alpha(0)
-            wedges, _ = ax.pie(tamanhos, startangle=140, wedgeprops={'edgecolor': 'white'})
+            wedges, texts, autotexts = ax.pie(
+                tamanhos, 
+                startangle=140, 
+                colors=cores_fatias,
+                wedgeprops={'edgecolor': 'white'},
+                autopct=format_pct,
+                pctdistance=0.75
+            )
+            plt.setp(autotexts, size=7, weight="bold", color="white")
             
-            # Legenda menor e ainda mais próxima para caber nas 3 colunas
             ax.legend(wedges, labels_apelidados, loc="center left", bbox_to_anchor=(0.85, 0.5), fontsize=8)
             ax.axis('equal')
             st.pyplot(fig, clear_figure=True)
@@ -305,4 +331,4 @@ for idx, amb in enumerate(AMBIENTES_DISPONIVEIS):
             st.info("Nenhum log detectado.")
 
 st.markdown("---")
-st.caption(f"NOC Edition v5.1 (Turbo) | Atualização: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} | Storage: {BASE_DIR_LOGS}")
+st.caption(f"NOC Edition v5.2 (Detailed) | Atualização: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} | Storage: {BASE_DIR_LOGS}")
