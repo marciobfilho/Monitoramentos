@@ -6,14 +6,13 @@ Arquivo: painel_logs.py
 
 Descrição: 
 Dashboard interativo para monitorar logs do ambiente Datasul.
-Versão 5.2: Inclusão de percentuais dentro das fatias dos gráficos, fim da 
-generalização "Outros" para nomes reais de serviços, e inclusão do "Espaço Livre" 
-(em verde) nos gráficos individuais de cada ambiente.
+Versão 5.3: Porcentagens movidas exclusivamente para a legenda, padronização de nomes 
+(Pasoe Datasul, RPW multiprocessos e Rpwlogs) e limpeza visual dos gráficos.
 
 Autor: Marcio Jose Gomes Bastos Filho
 Data de Criação: 26/03/2026
 Última Atualização: 29/04/2026
-Versão: 5.2
+Versão: 5.3
 =============================================================================================
 """
 
@@ -32,39 +31,40 @@ BASE_DIR_LOGS = r"\\192.168.0.247\Logs_Datasul"
 DIRETORIO_TCPING = r"C:\Users\marciof\Documents\GitHub\Monitoramentos\Tcping\logs"
 AMBIENTES_DISPONIVEIS = ["Producao", "Homologacao", "Prototipo"]
 
-# Regex compilado globalmente para máxima performance
 DATE_PATTERN = re.compile(r'(20\d{2}-\d{2}-\d{2})')
 
-# Dicionario de Apelidos Amigaveis (Sem generalizacao "Outros")
+# Dicionário de Apelidos (v5.5 - Diferenciação Linux/Windows)
 DICIONARIO_APELIDOS = {
     "tomcat_datasul": "Tomcat (Datasul)",
-    "logs_pasoe_geral": "PASOE: Base/Raiz",
+    "logs_pasoe_geral": "PASOE: Base/Logs", 
     "jboss_autorizador": "JBoss: Autorizador",
     "jboss_foundation_ptu": "JBoss: Foundation PTU",
     "jboss_foundation_gpu": "JBoss: Foundation GPU",
-    "pasoe_rpw_linux": "PASOE: RPW (Linux)",
-    "pasoe_rpwlog_linux": "PASOE: RPW Log (Linux)",
     
-    # Producao (_p)
+    # Servidores RPW Linux
+    "pasoe_rpw_linux": "RPW multiprocessos (Linux)",
+    "pasoe_rpwlog_linux": "Rpwlogs (Linux)",
+    
+    # Produção (_p) - Windows
+    "dts_c652ui_p": "Pasoe Datasul",
     "dts_c652ui-atr_p": "PASOE: ATR",
     "dts_c652ui-fnd_p": "PASOE: FND",
-    "dts_c652ui_p": "PASOE: Principal",
-    "rpw_c652ui-log_p": "RPW: Logs",
-    "rpw_c652ui-rpw_p": "RPW: Principal",
+    "rpw_c652ui-log_p": "Rpwlogs (Windows)",
+    "rpw_c652ui-rpw_p": "RPW multiprocessos (Windows)",
     
-    # Homologacao (_q)
+    # Homologação (_q) - Windows
+    "dts_c652ui_q": "Pasoe Datasul",
     "dts_c652ui-atr_q": "PASOE: ATR",
     "dts_c652ui-fnd_q": "PASOE: FND",
-    "dts_c652ui_q": "PASOE: Principal",
-    "rpw_c652ui-log_q": "RPW: Logs",
-    "rpw_c652ui-q_q": "RPW: Secundário",
+    "rpw_c652ui-log_q": "Rpwlogs (Windows)",
+    "rpw_c652ui-q_q": "RPW multiprocessos (Windows)",
     
-    # Prototipo (_t)
+    # Protótipo (_t) - Windows
+    "dts_c652ui_t": "Pasoe Datasul",
     "dts_c652ui-atr_t": "PASOE: ATR",
     "dts_c652ui-fnd_t": "PASOE: FND",
-    "dts_c652ui_t": "PASOE: Principal",
-    "rpw_c652ui-log_t": "RPW: Logs",
-    "rpw_c652ui-rpw_t": "RPW: Principal"
+    "rpw_c652ui-log_t": "Rpwlogs (Windows)",
+    "rpw_c652ui-rpw_t": "RPW multiprocessos (Windows)"
 }
 
 st.set_page_config(page_title="NOC: Monitor Datasul & Rede", layout="wide")
@@ -79,13 +79,8 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# Formatador de Porcentagem para os Graficos (Esconde se for < 2% para nao poluir)
-def format_pct(pct):
-    return f"{pct:.1f}%" if pct > 2.0 else ""
-
 @st.cache_data(ttl=45)
 def obter_metricas_ambiente_fast(diretorio_alvo):
-    """Calcula tamanho e retenção usando os.scandir() para performance extrema em rede."""
     tamanho_total_bytes = 0
     tempo_mais_antigo = None
     quantidade_arquivos = 0
@@ -103,7 +98,6 @@ def obter_metricas_ambiente_fast(diretorio_alvo):
     for servico in servicos:
         caminho_servico = os.path.join(diretorio_alvo, servico)
         dirs_to_scan = [caminho_servico]
-        
         while dirs_to_scan:
             current_dir = dirs_to_scan.pop()
             try:
@@ -114,7 +108,6 @@ def obter_metricas_ambiente_fast(diretorio_alvo):
                             data_item = datetime.datetime.strptime(match_data.group(1), "%Y-%m-%d")
                             if not tempo_mais_antigo or data_item < tempo_mais_antigo:
                                 tempo_mais_antigo = data_item
-
                         if entry.is_dir():
                             dirs_to_scan.append(entry.path)
                         elif entry.is_file():
@@ -122,15 +115,12 @@ def obter_metricas_ambiente_fast(diretorio_alvo):
                                 tamanho = entry.stat().st_size
                                 tamanho_total_bytes += tamanho
                                 quantidade_arquivos += 1
-                                
-                                # Logica de Agrupamento de Servicos (Sem generalizacao)
                                 nome_barra = servico.lower()
                                 if nome_barra == "logs_pasoe":
                                     if ".agent." in entry.name:
                                         nome_barra = entry.name.split(".agent.")[0].lower()
                                     else:
                                         nome_barra = "logs_pasoe_geral"
-                                        
                                 tamanho_por_servico[nome_barra] = tamanho_por_servico.get(nome_barra, 0) + tamanho
                             except Exception: pass
             except Exception: pass
@@ -170,165 +160,88 @@ def obter_metricas_rede_historico(diretorio):
         return df, status_atual, latencia_atual
     return df_vazio, "Aguardando", 0.0
 
-# --- COLETA DE DADOS UNIFICADA ---
 st.markdown("<h4 style='margin-bottom:0px; padding-bottom:0px;'>Painel de Controle: Datasul & Rede (Visão Global)</h4>", unsafe_allow_html=True)
 
 dados_ambientes = {}
 gb_logs_total = 0
 arquivos_total = 0
-tempo_mais_antigo_global = None
 
-with st.spinner('Consolidando métricas do Storage (I/O Otimizado)...'):
+with st.spinner('Consolidando métricas...'):
     for amb in AMBIENTES_DISPONIVEIS:
         dir_amb = os.path.join(BASE_DIR_LOGS, amb)
         t_bytes, t_antigo, qtd_arq, servicos = obter_metricas_ambiente_fast(dir_amb)
-        
         gb_amb = t_bytes / (1024**3)
         gb_logs_total += gb_amb
         arquivos_total += qtd_arq
-        
-        if t_antigo:
-            if not tempo_mais_antigo_global or t_antigo < tempo_mais_antigo_global:
-                tempo_mais_antigo_global = t_antigo
-                
-        dados_ambientes[amb] = {
-            "gb": gb_amb,
-            "antigo": t_antigo,
-            "qtd": qtd_arq,
-            "servicos": servicos
-        }
+        dados_ambientes[amb] = {"gb": gb_amb, "antigo": t_antigo, "qtd": qtd_arq, "servicos": servicos}
         
     df_rede_hist, status_rede, latencia_rede = obter_metricas_rede_historico(DIRETORIO_TCPING)
     try:
         disco = shutil.disk_usage(BASE_DIR_LOGS)
         gb_livre = disco.free / (1024**3)
     except Exception:
-        disco = None
-        gb_livre = 0
+        disco = None; gb_livre = 0
 
-now = pd.Timestamp.now()
-
-# --- LINHA 1: METRICAS GLOBAIS E REDE ---
+# --- LINHA 1: METRICAS GLOBAIS ---
 col_met_1, col_met_2, col_met_3 = st.columns(3)
-
-with col_met_1:
-    st.markdown("**Armazenamento (Todos os Ambientes)**")
-    st.metric(label="Total Coletado", value=f"{gb_logs_total:.2f} GB", delta=f"{arquivos_total} arquivos")
-    
+with col_met_1: st.metric(label="Total Coletado", value=f"{gb_logs_total:.2f} GB", delta=f"{arquivos_total} arquivos")
 with col_met_2:
-    st.markdown("**Monitoramento TCPing**")
     sc = "#FF0000" if status_rede == "Offline" else "#00FF00"
     st.metric(label="Latencia Atual", value=f"{latencia_rede}ms")
     st.markdown(f"**Status:** <span style='color:{sc};'>{status_rede}</span>", unsafe_allow_html=True)
-
 with col_met_3:
-    st.markdown("**Espaco Livre no Storage (Geral)**")
-    if disco:
-        st.markdown(f"<p class='green-metric'>{gb_livre:.2f} GB</p>", unsafe_allow_html=True)
-    else: st.info("Indisponivel")
+    if disco: st.markdown(f"**Storage Livre (L:\\)**<br><p class='green-metric'>{gb_livre:.2f} GB</p>", unsafe_allow_html=True)
 
 st.markdown("---")
 
-# --- LINHA 2: GRAFICOS DE REDE ---
-st.markdown("**Histórico de Conectividade**")
-if not df_rede_hist.empty:
-    c5, c1h, c1d = st.columns(3)
-    for col, period, label in zip([c5, c1h, c1d], [pd.Timedelta(minutes=5), pd.Timedelta(hours=1), pd.Timedelta(days=1)], ["Últimos 5 Minutos", "Última Hora", "Último Dia"]):
-        with col:
-            st.markdown(f"*{label}*")
-            df_p = df_rede_hist[df_rede_hist.index >= (now - period)]
-            if not df_p.empty: st.line_chart(df_p["Latencia (ms)"], color="#00FF00", height=100)
-else:
-    st.info("Aguardando dados de rede...")
+# --- LINHA 2: USO DE DISCO GLOBAL ---
+st.markdown("**Consumo Global (Ambientes x Espaço Livre)**")
+c_gl, c_p, c_h, c_pr = st.columns([1.5, 1, 1, 1])
 
-st.markdown("---")
+with c_gl:
+    labels_globais = ["Produção", "Homologação", "Protótipo", "Espaço Livre"]
+    valores_globais = [dados_ambientes["Producao"]["gb"], dados_ambientes["Homologacao"]["gb"], dados_ambientes["Prototipo"]["gb"], gb_livre]
+    total_g = sum(valores_globais)
+    # Porcentagem na legenda
+    labels_pct = [f"{l} ({(v/total_g)*100:.1f}%)" if total_g > 0 else l for l, v in zip(labels_globais, valores_globais)]
+    
+    fig, ax = plt.subplots(figsize=(5, 3))
+    fig.patch.set_alpha(0)
+    wedges, _ = ax.pie(valores_globais, startangle=140, colors=['#1f77b4', '#ff7f0e', '#9467bd', '#00FF00'], wedgeprops={'edgecolor': 'white'})
+    ax.legend(wedges, labels_pct, loc="center left", bbox_to_anchor=(0.9, 0.5), fontsize=10)
+    ax.axis('equal'); st.pyplot(fig, clear_figure=True)
 
-# --- LINHA 3: USO DE DISCO GLOBAL ---
-st.markdown("**Consumo de Disco: Ambientes x Espaço Livre**")
-c_global_pizza, c_prod, c_homol, c_proto = st.columns([1.5, 1, 1, 1])
-
-with c_global_pizza:
-    if disco:
-        labels_globais = ["Produção", "Homologação", "Protótipo", "Espaço Livre"]
-        valores_globais = [
-            dados_ambientes["Producao"]["gb"], 
-            dados_ambientes["Homologacao"]["gb"], 
-            dados_ambientes["Prototipo"]["gb"], 
-            gb_livre
-        ]
-        cores_globais = ['#1f77b4', '#ff7f0e', '#9467bd', '#00FF00']
-        
-        fig, ax = plt.subplots(figsize=(5, 3))
-        fig.patch.set_alpha(0)
-        wedges, texts, autotexts = ax.pie(
-            valores_globais, 
-            startangle=140, 
-            colors=cores_globais, 
-            wedgeprops={'edgecolor': 'white'},
-            autopct=format_pct,
-            pctdistance=0.75
-        )
-        plt.setp(autotexts, size=8, weight="bold", color="white")
-        
-        ax.legend(wedges, labels_globais, title="Uso Global", loc="center left", bbox_to_anchor=(0.9, 0.5), fontsize=10)
-        ax.axis('equal')
-        st.pyplot(fig, clear_figure=True)
-
-# Miniquadros informativos
-amb_cols = [c_prod, c_homol, c_proto]
-for idx, amb in enumerate(AMBIENTES_DISPONIVEIS):
-    with amb_cols[idx]:
+for col, amb in zip([c_p, c_h, c_pr], AMBIENTES_DISPONIVEIS):
+    with col:
         st.markdown(f"**{amb}**")
-        dias_ret = (datetime.datetime.now() - dados_ambientes[amb]["antigo"]).days if dados_ambientes[amb]["antigo"] else 0
-        data_str = dados_ambientes[amb]["antigo"].strftime('%d/%m/%Y') if dados_ambientes[amb]["antigo"] else "N/A"
-        
-        st.metric(label="Uso de Disco", value=f"{dados_ambientes[amb]['gb']:.2f} GB")
-        st.metric(label="Retenção Atual", value=f"{dias_ret} Dias", delta=f"Desde {data_str}", delta_color="off")
+        dias = (datetime.datetime.now() - dados_ambientes[amb]["antigo"]).days if dados_ambientes[amb]["antigo"] else 0
+        st.metric(label="Uso", value=f"{dados_ambientes[amb]['gb']:.2f} GB")
+        st.metric(label="Retenção", value=f"{dias} Dias", delta_color="off")
 
 st.markdown("---")
 
-# --- LINHA 4: DISTRIBUICAO INTERNA (ZOOM NOS COMPONENTES) ---
-st.markdown("**Distribuição Interna de Logs por Ambiente (Incluindo Espaço Livre)**")
-col_pizza_1, col_pizza_2, col_pizza_3 = st.columns(3)
-pizza_cols = [col_pizza_1, col_pizza_2, col_pizza_3]
-
-for idx, amb in enumerate(AMBIENTES_DISPONIVEIS):
-    with pizza_cols[idx]:
+# --- LINHA 3: DISTRIBUIÇÃO INTERNA POR AMBIENTE ---
+st.markdown("**Distribuição Interna com Espaço Livre**")
+cp1, cp2, cp3 = st.columns(3)
+for col, amb in zip([cp1, cp2, cp3], AMBIENTES_DISPONIVEIS):
+    with col:
         st.markdown(f"*{amb}*")
-        servicos_amb = dados_ambientes[amb]["servicos"]
-        
-        if servicos_amb and disco:
-            labels_originais = list(servicos_amb.keys())
-            tamanhos = list(servicos_amb.values())
-            labels_apelidados = [DICIONARIO_APELIDOS.get(n, n.replace('_', ' ').title()) for n in labels_originais]
-            
-            # Adiciona o Espaço Livre ao grafico do ambiente
-            labels_apelidados.append("Espaço Livre")
-            tamanhos.append(gb_livre)
-            
-            # Mapeamento dinâmico de cores forçando o Verde no final
-            prop_cycle = plt.rcParams['axes.prop_cycle']
-            default_colors = prop_cycle.by_key()['color']
-            cores_fatias = [default_colors[i % len(default_colors)] for i in range(len(tamanhos)-1)]
-            cores_fatias.append('#00FF00') # Verde neon para Espaço Livre
+        servs = dados_ambientes[amb]["servicos"]
+        if servs:
+            labels_raw = list(servs.keys()); vals = list(servs.values())
+            labels_txt = [DICIONARIO_APELIDOS.get(n, n.replace('_', ' ').title()) for n in labels_raw]
+            labels_txt.append("Espaço Livre"); vals.append(gb_livre)
+            total_amb = sum(vals)
+            # Porcentagem na legenda
+            labels_pct_amb = [f"{l} ({(v/total_amb)*100:.1f}%)" if total_amb > 0 else l for l, v in zip(labels_txt, vals)]
             
             fig, ax = plt.subplots(figsize=(4, 2.5))
             fig.patch.set_alpha(0)
-            wedges, texts, autotexts = ax.pie(
-                tamanhos, 
-                startangle=140, 
-                colors=cores_fatias,
-                wedgeprops={'edgecolor': 'white'},
-                autopct=format_pct,
-                pctdistance=0.75
-            )
-            plt.setp(autotexts, size=7, weight="bold", color="white")
-            
-            ax.legend(wedges, labels_apelidados, loc="center left", bbox_to_anchor=(0.85, 0.5), fontsize=8)
-            ax.axis('equal')
-            st.pyplot(fig, clear_figure=True)
-        else:
-            st.info("Nenhum log detectado.")
+            prop_cycle = plt.rcParams['axes.prop_cycle']
+            cores = [c['color'] for c in prop_cycle][:len(vals)-1] + ['#00FF00']
+            wedges, _ = ax.pie(vals, startangle=140, colors=cores, wedgeprops={'edgecolor': 'white'})
+            ax.legend(wedges, labels_pct_amb, loc="center left", bbox_to_anchor=(0.85, 0.5), fontsize=8)
+            ax.axis('equal'); st.pyplot(fig, clear_figure=True)
+        else: st.info("Sem logs.")
 
-st.markdown("---")
-st.caption(f"NOC Edition v5.2 (Detailed) | Atualização: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} | Storage: {BASE_DIR_LOGS}")
+st.caption(f"NOC Edition v5.3 | Atualização: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
