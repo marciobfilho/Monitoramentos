@@ -22,7 +22,7 @@ UNIDADE_REDE = "L:"
 CAMINHO_UNC = r"\\192.168.0.247\Logs_Datasul"
 AMBIENTES = ["Producao", "Homologacao", "Prototipo"]
 
-DIAS_RETENCAO_COMPACTACAO = 5
+DIAS_RETENCAO_COMPACTACAO = 1
 DIAS_RETENCAO_EXPURGO = 90
 
 def main():
