@@ -27,8 +27,8 @@ import matplotlib.pyplot as plt
 from streamlit_autorefresh import st_autorefresh
 
 # --- Configuracoes Principais ---
-BASE_DIR_LOGS = r"\\192.168.0.247\Logs_Datasul"
-DIRETORIO_TCPING = r"C:\Users\marciof\Documents\GitHub\Monitoramentos\Tcping\logs"
+BASE_DIR_LOGS = r"\\compartilhamento\Logs_Datasul"
+DIRETORIO_TCPING = r"\\Monitoramentos\Tcping\LOGS"
 AMBIENTES_DISPONIVEIS = ["Producao", "Homologacao", "Prototipo"]
 
 DATE_PATTERN = re.compile(r'(20\d{2}-\d{2}-\d{2})')

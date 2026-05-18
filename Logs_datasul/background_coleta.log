@@ -1,0 +1,18 @@
+
+--- Coleta: Producao ---
+Progresso Producao:   0%|[32m          [0m| 0/7 [00:00<?, ?it/s]Progresso Producao:  14%|[32m█▍        [0m| 1/7 [00:01<00:08,  1.36s/it]Progresso Producao:  29%|[32m██▊       [0m| 2/7 [00:02<00:06,  1.31s/it]Progresso Producao:  43%|[32m████▎     [0m| 3/7 [00:04<00:06,  1.61s/it]Progresso Producao:  57%|[32m█████▋    [0m| 4/7 [00:07<00:06,  2.22s/it]Progresso Producao:  71%|[32m███████▏  [0m| 5/7 [00:10<00:04,  2.38s/it]Progresso Producao:  71%|[32m███████▏  [0m| 5/7 [00:20<00:04,  2.38s/it, Baixando: dts_c652ui-atr_p.age...]Progresso Producao:  71%|[32m███████▏  [0m| 5/7 [00:26<00:04,  2.38s/it, Baixando: dts_c652ui-fnd_p.age...]Progresso Producao:  71%|[32m███████▏  [0m| 5/7 [00:26<00:04,  2.38s/it, Baixando: dts_c652ui_p.agent.2...]Progresso Producao:  71%|[32m███████▏  [0m| 5/7 [00:29<00:04,  2.38s/it, Baixando: rpw_c652ui-log_p.age...]Progresso Producao:  71%|[32m███████▏  [0m| 5/7 [00:30<00:04,  2.38s/it, Baixando: rpw_c652ui-rpw_p.age...]Progresso Producao:  86%|[32m████████▌ [0m| 6/7 [00:32<00:09,  9.20s/it, Baixando: rpw_c652ui-rpw_p.age...]Progresso Producao: 100%|[32m██████████[0m| 7/7 [00:43<00:00,  9.53s/it, Baixando: rpw_c652ui-rpw_p.age...]Progresso Producao: 100%|[32m██████████[0m| 7/7 [00:43<00:00,  6.15s/it, Baixando: rpw_c652ui-rpw_p.age...]
+
+--- Coleta: Homologacao ---
+Progresso Homologacao:   0%|[32m          [0m| 0/5 [00:00<?, ?it/s]Progresso Homologacao:  20%|[32m██        [0m| 1/5 [00:01<00:07,  1.84s/it]Progresso Homologacao:  40%|[32m████      [0m| 2/5 [00:03<00:05,  1.67s/it]Progresso Homologacao:  60%|[32m██████    [0m| 3/5 [00:04<00:02,  1.48s/it]Progresso Homologacao:  60%|[32m██████    [0m| 3/5 [00:13<00:02,  1.48s/it, Baixando: dts_c652ui-fnd_q.age...]Progresso Homologacao:  60%|[32m██████    [0m| 3/5 [00:13<00:02,  1.48s/it, Baixando: dts_c652ui_q.agent.2...]Progresso Homologacao:  60%|[32m██████    [0m| 3/5 [00:14<00:02,  1.48s/it, Baixando: rpw_c652ui-q_q.agent...]Progresso Homologacao:  80%|[32m████████  [0m| 4/5 [00:15<00:05,  5.06s/it, Baixando: rpw_c652ui-q_q.agent...]Progresso Homologacao: 100%|[32m██████████[0m| 5/5 [00:16<00:00,  3.60s/it, Baixando: rpw_c652ui-q_q.agent...]Progresso Homologacao: 100%|[32m██████████[0m| 5/5 [00:16<00:00,  3.24s/it, Baixando: rpw_c652ui-q_q.agent...]
+
+--- Coleta: Prototipo ---
+Progresso Prototipo:   0%|[32m          [0m| 0/7 [00:00<?, ?it/s]Progresso Prototipo:  14%|[32m█▍        [0m| 1/7 [00:00<00:05,  1.18it/s]                                                                  Progresso Prototipo:  14%|[32m█▍        [0m| 1/7 [00:01<00:05,  1.18it/s]Progresso Prototipo:  29%|[32m██▊       [0m| 2/7 [00:01<00:02,  2.27it/s]Progresso Prototipo:  43%|[32m████▎     [0m| 3/7 [00:01<00:02,  1.59it/s]Progresso Prototipo:  57%|[32m█████▋    [0m| 4/7 [00:03<00:02,  1.07it/s]Progresso Prototipo:  71%|[32m███████▏  [0m| 5/7 [00:04<00:01,  1.06it/s]Progresso Prototipo:  86%|[32m████████▌ [0m| 6/7 [00:16<00:04,  4.86s/it]Progresso Prototipo: 100%|[32m██████████[0m| 7/7 [00:18<00:00,  3.71s/it]Progresso Prototipo: 100%|[32m██████████[0m| 7/7 [00:18<00:00,  2.57s/it]
+[ERRO] Falha ao acessar https://unimedencosta184282.datasul.cloudtotvs.com.br:8777/logs/jboss_foundation_gpu/: 404 Client Error: Not Found for url: https://unimedencosta184282.datasul.cloudtotvs.com.br:8777/logs/jboss_foundation_gpu/
+
+==================================================
+RELATORIO DE COLETA GERAL
+==================================================
+Inicio: 18/05/2026 07:00:01 | Fim: 18/05/2026 07:01:19
+Historicos: 8 | Ativos: 71 | Limpos: 0
+==================================================
+
