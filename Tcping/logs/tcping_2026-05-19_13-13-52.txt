@@ -1,0 +1,16 @@
+
+** Pinging continuously.  Press control-c to stop **
+
+2026:05:19 13:13:52 Probing 177.136.10.96:491/tcp - Port is open - time=21.376ms 
+2026:05:19 13:13:53 Probing 177.136.10.96:491/tcp - Port is open - time=26.987ms 
+2026:05:19 13:13:55 Probing 177.136.10.96:491/tcp - Port is open - time=21.467ms 
+2026:05:19 13:13:57 Probing 177.136.10.96:491/tcp - Port is open - time=19.767ms 
+2026:05:19 13:13:58 Probing 177.136.10.96:491/tcp - Port is open - time=20.253ms 
+2026:05:19 13:14:00 Probing 177.136.10.96:491/tcp - Port is open - time=19.996ms 
+2026:05:19 13:14:02 Probing 177.136.10.96:491/tcp - Port is open - time=19.974ms 
+2026:05:19 13:14:03 Probing 177.136.10.96:491/tcp - Port is open - time=20.006ms 
+2026:05:19 13:14:05 Probing 177.136.10.96:491/tcp - Port is open - time=19.922ms 
+2026:05:19 13:14:07 Probing 177.136.10.96:491/tcp - Port is open - time=20.987ms 
+2026:05:19 13:14:08 Probing 177.136.10.96:491/tcp - Port is open - time=19.791ms 
+2026:05:19 13:14:10 Probing 177.136.10.96:491/tcp - Port is open - time=20.770ms 
+2026:05:19 13:14:12 Probing 177.136.10.96:491/tcp - Port is open - time=20.775ms 
